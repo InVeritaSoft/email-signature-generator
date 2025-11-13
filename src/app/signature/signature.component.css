@@ -1,3 +1,123 @@
+/* Page Layout */
+.page-container {
+  display: flex;
+  gap: 40px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+/* Form Container */
+.form-container {
+  flex: 1;
+  min-width: 400px;
+  max-width: 500px;
+}
+
+.form-container h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #101828;
+}
+
+.signature-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #101828;
+}
+
+.form-control {
+  padding: 10px 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 6px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  color: #101828;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #6b7280;
+}
+
+.form-control.invalid {
+  border-color: #dc2626;
+}
+
+.error-message {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  color: #dc2626;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.copy-button {
+  padding: 12px 24px;
+  background-color: #101828;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.copy-button:hover:not(:disabled) {
+  background-color: #1f2937;
+}
+
+.copy-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.success-message {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  color: #059669;
+  font-weight: 600;
+}
+
+/* Preview Container */
+.preview-container {
+  flex: 0 0 auto;
+  min-width: 600px;
+  align-self: flex-start;
+}
+
+.preview-container h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #101828;
+}
+
 .signature-container {
   background-color: #fbfbfb;
   padding: 4px 3px;
@@ -315,4 +435,153 @@
   width: 100%;
   padding: 20px;
   background: #fbfbfb;
+}
+
+/* Hidden elements - maintain layout space to prevent jumping */
+.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* LinkedIn section should maintain height when hidden */
+.linkedin-section.hidden {
+  visibility: hidden;
+  pointer-events: none;
+  height: 40px;
+  min-height: 40px;
+}
+
+/* Social icons should not take space when hidden */
+.social-icon-link.hidden {
+  visibility: hidden;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Website link container should maintain height when hidden */
+.website-link-container.hidden {
+  visibility: hidden;
+  pointer-events: none;
+  height: 40px;
+  min-height: 40px;
+}
+
+/* Email Test Section */
+.email-test-section {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 2px solid #e0e0e0;
+  width: 100%;
+  max-width: 600px;
+}
+
+.controls {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.controls h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: #555;
+}
+
+.url-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.help-text {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.preview-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.preview-section h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.email-preview-container {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.code-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.code-block {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.code-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.code-content {
+  margin: 0;
+  padding: 20px;
+  background-color: #f8f9fa;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 500px;
+  overflow-y: auto;
 }

@@ -1,56 +1,132 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  computed,
+  effect,
+  signal,
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { SignatureComponent } from '../signature/signature.component';
+import { SignatureStore } from '../store/signature.store';
 
 @Component({
   selector: 'app-signature-email-test',
   standalone: true,
   imports: [],
   templateUrl: './signature-email-test.component.html',
-  styleUrl: './signature-email-test.component.css'
+  styleUrl: './signature-email-test.component.css',
 })
 export class SignatureEmailTestComponent implements OnInit {
-  emailHtml: SafeHtml | null = null;
-  emailSignature: SafeHtml | null = null;
-  baseUrl: string = '';
-  private signatureComponent: SignatureComponent;
+  // Inject dependencies using NgRx pattern
+  readonly store = inject(SignatureStore);
+  private readonly sanitizer = inject(DomSanitizer);
 
-  constructor(private sanitizer: DomSanitizer) {
-    this.signatureComponent = new SignatureComponent();
+  readonly baseUrl = signal('');
+
+  // Computed signals for email HTML - track all individual signals for proper reactivity
+  readonly emailHtml = computed(() => {
+    // Track all individual store signals to ensure reactivity
+    // This ensures any change to any field triggers recomputation
+    const name = this.store.name();
+    const title = this.store.title();
+    const linkedInUrl = this.store.linkedInUrl();
+    const linkedInText = this.store.linkedInText();
+    const websiteUrl = this.store.websiteUrl();
+    const websiteText = this.store.websiteText();
+    const facebookUrl = this.store.facebookUrl();
+    const youtubeUrl = this.store.youtubeUrl();
+    const linkedInSocialUrl = this.store.linkedInSocialUrl();
+    const imageUrl = this.store.imageUrl();
+    const baseUrlValue = this.baseUrl();
+
+    // Get current state and pass to generation method
+    const state = this.store.state();
+    const html = this.store.generateEmailHtml(baseUrlValue, state);
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  });
+
+  readonly emailSignature = computed(() => {
+    // Track all individual store signals to ensure reactivity
+    const name = this.store.name();
+    const title = this.store.title();
+    const linkedInUrl = this.store.linkedInUrl();
+    const linkedInText = this.store.linkedInText();
+    const websiteUrl = this.store.websiteUrl();
+    const websiteText = this.store.websiteText();
+    const facebookUrl = this.store.facebookUrl();
+    const youtubeUrl = this.store.youtubeUrl();
+    const linkedInSocialUrl = this.store.linkedInSocialUrl();
+    const imageUrl = this.store.imageUrl();
+    const baseUrlValue = this.baseUrl();
+
+    // Get current state and pass to generation method
+    const state = this.store.state();
+    const signature = this.store.generateEmailSignature(baseUrlValue, state);
+    return this.sanitizer.bypassSecurityTrustHtml(signature);
+  });
+
+  readonly emailHtmlString = computed(() => {
+    // Track all individual store signals to ensure reactivity
+    this.store.name();
+    this.store.title();
+    this.store.linkedInUrl();
+    this.store.linkedInText();
+    this.store.websiteUrl();
+    this.store.websiteText();
+    this.store.facebookUrl();
+    this.store.youtubeUrl();
+    this.store.linkedInSocialUrl();
+    this.store.imageUrl();
+    const baseUrlValue = this.baseUrl();
+
+    // Get current state and pass to generation method
+    const state = this.store.state();
+    return this.store.generateEmailHtml(baseUrlValue, state);
+  });
+
+  readonly emailSignatureString = computed(() => {
+    // Track all individual store signals to ensure reactivity
+    this.store.name();
+    this.store.title();
+    this.store.linkedInUrl();
+    this.store.linkedInText();
+    this.store.websiteUrl();
+    this.store.websiteText();
+    this.store.facebookUrl();
+    this.store.youtubeUrl();
+    this.store.linkedInSocialUrl();
+    this.store.imageUrl();
+    const baseUrlValue = this.baseUrl();
+
+    // Get current state and pass to generation method
+    const state = this.store.state();
+    return this.store.generateEmailSignature(baseUrlValue, state);
+  });
+
+  constructor() {
+    // Sync baseUrl changes to store
+    effect(() => {
+      this.store.updateBaseUrl(this.baseUrl());
+    });
   }
 
   ngOnInit(): void {
-    this.updateEmailHtml();
-  }
-
-  updateEmailHtml(): void {
-    const html = this.signatureComponent.generateEmailHtml(this.baseUrl);
-    const signature = this.signatureComponent.generateEmailSignature(this.baseUrl);
-    
-    this.emailHtml = this.sanitizer.bypassSecurityTrustHtml(html);
-    this.emailSignature = this.sanitizer.bypassSecurityTrustHtml(signature);
+    // Initialize baseUrl from store
+    this.baseUrl.set(this.store.baseUrl());
   }
 
   onBaseUrlChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.baseUrl = input.value;
-    this.updateEmailHtml();
+    this.baseUrl.set(input.value);
   }
 
-  copyToClipboard(content: string): void {
-    navigator.clipboard.writeText(content).then(() => {
+  async copyToClipboard(content: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(content);
       alert('Copied to clipboard!');
-    }).catch(err => {
+    } catch (err) {
       console.error('Failed to copy:', err);
-    });
-  }
-
-  getEmailHtmlString(): string {
-    return this.signatureComponent.generateEmailHtml(this.baseUrl);
-  }
-
-  getEmailSignatureString(): string {
-    return this.signatureComponent.generateEmailSignature(this.baseUrl);
+      alert('Failed to copy to clipboard');
+    }
   }
 }
-

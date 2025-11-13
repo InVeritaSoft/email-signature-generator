@@ -6,7 +6,7 @@
       <input
         id="baseUrl"
         type="text"
-        [value]="baseUrl"
+        [value]="baseUrl()"
         (input)="onBaseUrlChange($event)"
         placeholder="https://inveritasoft.com"
         class="url-input"
@@ -19,7 +19,7 @@
 
   <div class="preview-section">
     <h2>Preview</h2>
-    <div class="preview-container" [innerHTML]="emailHtml"></div>
+      <div class="preview-container" [innerHTML]="emailHtml()"></div>
   </div>
 
   <div class="code-section">
@@ -28,12 +28,12 @@
         <h3>Email Signature HTML (for direct insertion)</h3>
         <button
           class="copy-button"
-          (click)="copyToClipboard(getEmailSignatureString())"
+          (click)="copyToClipboard(emailSignatureString())"
         >
           Copy
         </button>
       </div>
-      <pre class="code-content">{{ getEmailSignatureString() }}</pre>
+      <pre class="code-content">{{ emailSignatureString() }}</pre>
     </div>
 
     <div class="code-block">
@@ -41,12 +41,12 @@
         <h3>Full HTML Document</h3>
         <button
           class="copy-button"
-          (click)="copyToClipboard(getEmailHtmlString())"
+          (click)="copyToClipboard(emailHtmlString())"
         >
           Copy
         </button>
       </div>
-      <pre class="code-content">{{ getEmailHtmlString() }}</pre>
+      <pre class="code-content">{{ emailHtmlString() }}</pre>
     </div>
   </div>
 </div>

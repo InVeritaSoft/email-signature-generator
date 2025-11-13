@@ -1,117 +1,438 @@
-<div class="signature-container" data-node-id="136:143">
-  <div class="signature-content" data-node-id="136:144">
-    <!-- Left Column: Portrait and Logo -->
-    <div class="left-column" data-node-id="136:145">
-      <div
-        class="portrait-container"
-        data-name="portrait-image"
-        data-node-id="136:146"
-      >
-        <img [src]="imageUrl" [alt]="name" class="portrait-image" />
-      </div>
-      <div
-        class="logo-container"
-        data-name="company-logo"
-        data-node-id="136:147"
-      >
-        <img [src]="logoUrl" [alt]="'Inverita logo'" class="logo-image" />
-      </div>
-    </div>
-
-    <!-- Right Column: Contact Information -->
-    <div class="right-column" data-node-id="136:159">
-      <div class="contact-info-container">
-        <!-- Name and Title Section -->
-        <div class="contact-info" data-node-id="136:160">
-          <div class="contact-details" data-node-id="136:161">
-            <p class="name" data-name="name" data-node-id="136:162">
-              {{ name }}
-            </p>
-            <div class="title" data-name="title" data-node-id="136:163">
-              <p class="mb-0">{{ title }}</p>
-              <p>&nbsp;</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- LinkedIn Link Section -->
+<div class="page-container">
+  <!-- Form Section -->
+  <div class="form-container">
+    <h2>Signature Generator</h2>
+    <form [formGroup]="signatureForm" class="signature-form">
+      <div class="form-group">
+        <label for="name">Name *</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('name')?.invalid &&
+            signatureForm.get('name')?.touched
+          "
+        />
         <div
-          class="linkedin-section"
-          data-name="linkedin-link"
-          data-node-id="136:164"
+          *ngIf="
+            signatureForm.get('name')?.invalid &&
+            signatureForm.get('name')?.touched
+          "
+          class="error-message"
         >
-          <a [href]="linkedInUrl" class="linkedin-link" data-node-id="136:165">
-            <div class="linkedin-text" data-node-id="136:166">
-              <p>{{ linkedInText }}</p>
-            </div>
-          </a>
+          Name is required
         </div>
       </div>
 
-      <!-- Social Media Icons and Website Section -->
-      <div class="social-section" data-node-id="136:167">
-        <div class="divider" data-node-id="136:168"></div>
-        <div class="social-content" data-node-id="136:169">
-          <div class="social-icons" data-node-id="136:170">
-            <a
-              [href]="facebookUrl"
-              class="social-icon-link"
-              data-name="social-icon-link"
-              data-node-id="136:171"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div class="social-icon" data-node-id="136:172">
-                <img
-                  [src]="facebookIconUrl"
-                  alt="Facebook"
-                  class="icon-image"
-                />
-              </div>
-            </a>
-            <a
-              [href]="youtubeUrl"
-              class="social-icon-link"
-              data-name="social-icon-link"
-              data-node-id="136:174"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div class="social-icon" data-node-id="136:175">
-                <img [src]="youtubeIconUrl" alt="YouTube" class="icon-image" />
-              </div>
-            </a>
-            <a
-              [href]="linkedInSocialUrl"
-              class="social-icon-link"
-              data-name="social-icon-link"
-              data-node-id="136:177"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div class="social-icon" data-node-id="136:178">
-                <img
-                  [src]="linkedInIconUrl"
-                  alt="LinkedIn"
-                  class="icon-image"
-                />
-              </div>
-            </a>
+      <div class="form-group">
+        <label for="title">Title/Position *</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          class="form-control"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('title')?.invalid &&
+            signatureForm.get('title')?.touched
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('title')?.invalid &&
+            signatureForm.get('title')?.touched
+          "
+          class="error-message"
+        >
+          Title is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">Portrait Image URL</label>
+        <input
+          id="imageUrl"
+          type="url"
+          formControlName="imageUrl"
+          class="form-control"
+          placeholder="https://example.com/image.jpg"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('imageUrl')?.invalid &&
+            signatureForm.get('imageUrl')?.touched
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('imageUrl')?.invalid &&
+            signatureForm.get('imageUrl')?.touched
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="linkedInUrl">LinkedIn Profile URL</label>
+        <input
+          id="linkedInUrl"
+          type="url"
+          formControlName="linkedInUrl"
+          class="form-control"
+          placeholder="https://www.linkedin.com/in/username"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('linkedInUrl')?.invalid &&
+            signatureForm.get('linkedInUrl')?.touched
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('linkedInUrl')?.invalid &&
+            signatureForm.get('linkedInUrl')?.touched
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="linkedInText">LinkedIn Link Text</label>
+        <input
+          id="linkedInText"
+          type="text"
+          formControlName="linkedInText"
+          class="form-control"
+          (input)="syncFormToStore($event)"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="websiteUrl">Website URL</label>
+        <input
+          id="websiteUrl"
+          type="url"
+          formControlName="websiteUrl"
+          class="form-control"
+          placeholder="https://example.com"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('websiteUrl')?.invalid &&
+            signatureForm.get('websiteUrl')?.touched
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('websiteUrl')?.invalid &&
+            signatureForm.get('websiteUrl')?.touched
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="websiteText">Website Display Text</label>
+        <input
+          id="websiteText"
+          type="text"
+          formControlName="websiteText"
+          class="form-control"
+          (input)="syncFormToStore($event)"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="facebookUrl">Facebook URL</label>
+        <input
+          id="facebookUrl"
+          type="url"
+          formControlName="facebookUrl"
+          class="form-control"
+          placeholder="https://www.facebook.com/username"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('facebookUrl')?.invalid &&
+            signatureForm.get('facebookUrl')?.touched
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('facebookUrl')?.invalid &&
+            signatureForm.get('facebookUrl')?.touched
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="youtubeUrl">YouTube URL</label>
+        <input
+          id="youtubeUrl"
+          type="url"
+          formControlName="youtubeUrl"
+          class="form-control"
+          placeholder="https://www.youtube.com/@username"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('youtubeUrl')?.invalid &&
+            signatureForm.get('youtubeUrl')?.touched
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('youtubeUrl')?.invalid &&
+            signatureForm.get('youtubeUrl')?.touched
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="linkedInSocialUrl">LinkedIn Company URL</label>
+        <input
+          id="linkedInSocialUrl"
+          type="url"
+          formControlName="linkedInSocialUrl"
+          class="form-control"
+          placeholder="https://www.linkedin.com/company/companyname"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('linkedInSocialUrl')?.invalid &&
+            signatureForm.get('linkedInSocialUrl')?.touched
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('linkedInSocialUrl')?.invalid &&
+            signatureForm.get('linkedInSocialUrl')?.touched
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          (click)="copyToClipboard()"
+          class="copy-button"
+          [disabled]="signatureForm.invalid"
+        >
+          Copy HTML to Clipboard
+        </button>
+        <div *ngIf="copySuccess()" class="success-message">
+          ✓ Copied to clipboard!
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Preview Section -->
+  <div class="preview-container">
+    <h2>Preview</h2>
+    <div class="signature-container" data-node-id="136:143">
+      <div class="signature-content" data-node-id="136:144">
+        <!-- Left Column: Portrait and Logo -->
+        <div class="left-column" data-node-id="136:145">
+          <div
+            class="portrait-container"
+            data-name="portrait-image"
+            data-node-id="136:146"
+          >
+            <img
+              [src]="store.imageUrl()"
+              [alt]="store.name()"
+              class="portrait-image"
+            />
           </div>
-          <div class="website-link-container" data-node-id="136:180">
-            <div class="website-link-wrapper" data-node-id="136:181">
+          <div
+            class="logo-container"
+            data-name="company-logo"
+            data-node-id="136:147"
+          >
+            <img [src]="logoUrl" [alt]="'Inverita logo'" class="logo-image" />
+          </div>
+        </div>
+
+        <!-- Right Column: Contact Information -->
+        <div class="right-column" data-node-id="136:159">
+          <div class="contact-info-container">
+            <!-- Name and Title Section -->
+            <div class="contact-info" data-node-id="136:160">
+              <div class="contact-details" data-node-id="136:161">
+                <p class="name" data-name="name" data-node-id="136:162">
+                  {{ store.name() }}
+                </p>
+                <div class="title" data-name="title" data-node-id="136:163">
+                  <p class="mb-0">{{ store.title() }}</p>
+                  <p>&nbsp;</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- LinkedIn Link Section -->
+            <div
+              class="linkedin-section"
+              data-name="linkedin-link"
+              data-node-id="136:164"
+              [class.hidden]="!store.linkedInUrl()"
+            >
               <a
-                [href]="websiteUrl"
-                class="website-link"
-                data-name="website-link"
-                data-node-id="136:182"
-                target="_blank"
-                rel="noopener noreferrer"
+                [href]="store.linkedInUrl()"
+                class="linkedin-link"
+                data-node-id="136:165"
               >
-                <p>{{ websiteText }}</p>
+                <div class="linkedin-text" data-node-id="136:166">
+                  <p>{{ store.linkedInText() || "LinkedIn" }}</p>
+                </div>
               </a>
             </div>
           </div>
+
+          <!-- Social Media Icons and Website Section -->
+          <div class="social-section" data-node-id="136:167">
+            <div class="divider" data-node-id="136:168"></div>
+            <div class="social-content" data-node-id="136:169">
+              <div class="social-icons" data-node-id="136:170">
+                <a
+                  [href]="store.facebookUrl()"
+                  class="social-icon-link"
+                  data-name="social-icon-link"
+                  data-node-id="136:171"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  [class.hidden]="!store.facebookUrl()"
+                >
+                  <div class="social-icon" data-node-id="136:172">
+                    <img
+                      [src]="facebookIconUrl"
+                      alt="Facebook"
+                      class="icon-image"
+                    />
+                  </div>
+                </a>
+                <a
+                  [href]="store.youtubeUrl()"
+                  class="social-icon-link"
+                  data-name="social-icon-link"
+                  data-node-id="136:174"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  [class.hidden]="!store.youtubeUrl()"
+                >
+                  <div class="social-icon" data-node-id="136:175">
+                    <img
+                      [src]="youtubeIconUrl"
+                      alt="YouTube"
+                      class="icon-image"
+                    />
+                  </div>
+                </a>
+                <a
+                  [href]="store.linkedInSocialUrl()"
+                  class="social-icon-link"
+                  data-name="social-icon-link"
+                  data-node-id="136:177"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  [class.hidden]="!store.linkedInSocialUrl()"
+                >
+                  <div class="social-icon" data-node-id="136:178">
+                    <img
+                      [src]="linkedInIconUrl"
+                      alt="LinkedIn"
+                      class="icon-image"
+                    />
+                  </div>
+                </a>
+              </div>
+              <div
+                class="website-link-container"
+                data-node-id="136:180"
+                [class.hidden]="!store.websiteUrl()"
+              >
+                <div class="website-link-wrapper" data-node-id="136:181">
+                  <a
+                    [href]="store.websiteUrl()"
+                    class="website-link"
+                    data-name="website-link"
+                    data-node-id="136:182"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <p>{{ store.websiteText() || store.websiteUrl() }}</p>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Test Section -->
+    <div class="email-test-section">
+      <div class="controls">
+        <h2>Email Signature Test</h2>
+        <div class="input-group">
+          <label for="baseUrl">Base URL for Images (optional):</label>
+          <input
+            id="baseUrl"
+            type="text"
+            [value]="baseUrl()"
+            (input)="onBaseUrlChange($event)"
+            placeholder="https://inveritasoft.com"
+            class="url-input"
+          />
+          <p class="help-text">
+            Leave empty to use relative paths, or enter a base URL (e.g.,
+            https://inveritasoft.com) for absolute image URLs
+          </p>
+        </div>
+      </div>
+
+      <div class="preview-section">
+        <h3>Email Preview</h3>
+        <div class="email-preview-container" [innerHTML]="emailHtml()"></div>
+      </div>
+
+      <div class="code-section">
+        <div class="code-block">
+          <div class="code-header">
+            <h3>Email Signature HTML (for direct insertion)</h3>
+            <button
+              class="copy-button"
+              (click)="copyEmailToClipboard(emailSignatureString())"
+            >
+              Copy
+            </button>
+          </div>
+          <pre class="code-content">{{ emailSignatureString() }}</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <h3>Full HTML Document</h3>
+            <button
+              class="copy-button"
+              (click)="copyEmailToClipboard(emailHtmlString())"
+            >
+              Copy
+            </button>
+          </div>
+          <pre class="code-content">{{ emailHtmlString() }}</pre>
         </div>
       </div>
     </div>
