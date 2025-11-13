@@ -1,0 +1,119 @@
+<div class="signature-container" data-node-id="136:143">
+  <div class="signature-content" data-node-id="136:144">
+    <!-- Left Column: Portrait and Logo -->
+    <div class="left-column" data-node-id="136:145">
+      <div
+        class="portrait-container"
+        data-name="portrait-image"
+        data-node-id="136:146"
+      >
+        <img [src]="imageUrl" [alt]="name" class="portrait-image" />
+      </div>
+      <div
+        class="logo-container"
+        data-name="company-logo"
+        data-node-id="136:147"
+      >
+        <img [src]="logoUrl" [alt]="'Inverita logo'" class="logo-image" />
+      </div>
+    </div>
+
+    <!-- Right Column: Contact Information -->
+    <div class="right-column" data-node-id="136:159">
+      <div class="contact-info-container">
+        <!-- Name and Title Section -->
+        <div class="contact-info" data-node-id="136:160">
+          <div class="contact-details" data-node-id="136:161">
+            <p class="name" data-name="name" data-node-id="136:162">
+              {{ name }}
+            </p>
+            <div class="title" data-name="title" data-node-id="136:163">
+              <p class="mb-0">{{ title }}</p>
+              <p>&nbsp;</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LinkedIn Link Section -->
+        <div
+          class="linkedin-section"
+          data-name="linkedin-link"
+          data-node-id="136:164"
+        >
+          <a [href]="linkedInUrl" class="linkedin-link" data-node-id="136:165">
+            <div class="linkedin-text" data-node-id="136:166">
+              <p>{{ linkedInText }}</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Social Media Icons and Website Section -->
+      <div class="social-section" data-node-id="136:167">
+        <div class="divider" data-node-id="136:168"></div>
+        <div class="social-content" data-node-id="136:169">
+          <div class="social-icons" data-node-id="136:170">
+            <a
+              [href]="facebookUrl"
+              class="social-icon-link"
+              data-name="social-icon-link"
+              data-node-id="136:171"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="social-icon" data-node-id="136:172">
+                <img
+                  [src]="facebookIconUrl"
+                  alt="Facebook"
+                  class="icon-image"
+                />
+              </div>
+            </a>
+            <a
+              [href]="youtubeUrl"
+              class="social-icon-link"
+              data-name="social-icon-link"
+              data-node-id="136:174"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="social-icon" data-node-id="136:175">
+                <img [src]="youtubeIconUrl" alt="YouTube" class="icon-image" />
+              </div>
+            </a>
+            <a
+              [href]="linkedInSocialUrl"
+              class="social-icon-link"
+              data-name="social-icon-link"
+              data-node-id="136:177"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="social-icon" data-node-id="136:178">
+                <img
+                  [src]="linkedInIconUrl"
+                  alt="LinkedIn"
+                  class="icon-image"
+                />
+              </div>
+            </a>
+          </div>
+          <div class="website-link-container" data-node-id="136:180">
+            <div class="website-link-wrapper" data-node-id="136:181">
+              <a
+                [href]="websiteUrl"
+                class="website-link"
+                data-name="website-link"
+                data-node-id="136:182"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <p>{{ websiteText }}</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
