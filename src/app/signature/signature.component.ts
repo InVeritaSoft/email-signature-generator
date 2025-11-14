@@ -41,11 +41,14 @@ export class SignatureComponent implements OnInit {
   signatureForm: FormGroup;
   readonly copySuccess = signal(false);
   readonly baseUrl = signal('');
+  readonly emailHtmlWithBase64 = signal<SafeHtml | null>(null);
+  private lastSignatureHash = signal<string>('');
+  private isConverting = false;
 
   constructor() {
-    // URL validator that allows empty strings or valid URLs (http/https or relative paths)
+    // URL validator that allows empty strings, valid URLs (http/https or relative paths), or base64 data URLs
     const urlValidator = Validators.pattern(
-      /^(https?:\/\/.+|\/.*|assets\/.*|$)/
+      /^(https?:\/\/.+|\/.*|assets\/.*|data:image\/.+;base64,.+|$)/
     );
 
     // Initialize form with store values
@@ -117,6 +120,60 @@ export class SignatureComponent implements OnInit {
     effect(() => {
       this.store.updateBaseUrl(this.baseUrl());
     });
+
+    // Effect to convert images to base64 for email preview
+    effect(() => {
+      // Track all individual store signals to ensure reactivity
+      const name = this.store.name();
+      const title = this.store.title();
+      const linkedInUrl = this.store.linkedInUrl();
+      const linkedInText = this.store.linkedInText();
+      const websiteUrl = this.store.websiteUrl();
+      const websiteText = this.store.websiteText();
+      const facebookUrl = this.store.facebookUrl();
+      const youtubeUrl = this.store.youtubeUrl();
+      const linkedInSocialUrl = this.store.linkedInSocialUrl();
+      const imageUrl = this.store.imageUrl();
+      const variant = this.store.variant();
+      const baseUrlValue = this.baseUrl();
+
+      // Generate signature
+      const signature = this.store.generateEmailSignature(baseUrlValue);
+
+      // Create a hash of the signature to detect actual changes
+      // Simple hash function for string comparison
+      let hash = 0;
+      for (let i = 0; i < signature.length; i++) {
+        const char = signature.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      const signatureHash = hash.toString();
+
+      // Only convert if signature actually changed and we're not already converting
+      if (this.lastSignatureHash() !== signatureHash && !this.isConverting) {
+        this.lastSignatureHash.set(signatureHash);
+        this.isConverting = true;
+
+        // Convert images to base64 for email preview
+        this.store
+          .convertImagesToBase64(signature)
+          .then((htmlWithBase64) => {
+            this.emailHtmlWithBase64.set(
+              this.sanitizer.bypassSecurityTrustHtml(htmlWithBase64)
+            );
+            this.isConverting = false;
+          })
+          .catch((error) => {
+            console.error('Failed to convert images to base64:', error);
+            // Fallback to original signature
+            this.emailHtmlWithBase64.set(
+              this.sanitizer.bypassSecurityTrustHtml(signature)
+            );
+            this.isConverting = false;
+          });
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -131,23 +188,17 @@ export class SignatureComponent implements OnInit {
 
   // Computed signals for email HTML - track all individual signals for proper reactivity
   readonly emailHtml = computed(() => {
-    // Track all individual store signals to ensure reactivity
-    const name = this.store.name();
-    const title = this.store.title();
-    const linkedInUrl = this.store.linkedInUrl();
-    const linkedInText = this.store.linkedInText();
-    const websiteUrl = this.store.websiteUrl();
-    const websiteText = this.store.websiteText();
-    const facebookUrl = this.store.facebookUrl();
-    const youtubeUrl = this.store.youtubeUrl();
-    const linkedInSocialUrl = this.store.linkedInSocialUrl();
-    const imageUrl = this.store.imageUrl();
-    const baseUrlValue = this.baseUrl();
+    // Track the base64 HTML signal to ensure reactivity
+    const base64Html = this.emailHtmlWithBase64();
 
-    // Get current state and pass to generation method
-    // For preview, use just the signature content (not full document)
+    // If base64 version is available, return it; otherwise return a placeholder
+    if (base64Html) {
+      return base64Html;
+    }
+
+    // Fallback: generate signature without base64 (will be updated by effect)
     const state = this.store.state();
-    const signature = this.store.generateEmailSignature(baseUrlValue, state);
+    const signature = this.store.generateEmailSignature(this.baseUrl(), state);
     return this.sanitizer.bypassSecurityTrustHtml(signature);
   });
 
@@ -314,5 +365,76 @@ export class SignatureComponent implements OnInit {
       .split('-')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+  }
+
+  /**
+   * Handles image file upload and converts to base64
+   */
+  async onImageUpload(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Please upload a valid image file (JPG, JPEG, or PNG)');
+      input.value = ''; // Reset input
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('Image size must be less than 5MB');
+      input.value = ''; // Reset input
+      return;
+    }
+
+    try {
+      // Convert file to base64
+      const base64 = await this.fileToBase64(file);
+
+      // Update form and store with base64 data URL
+      this.signatureForm.patchValue({ imageUrl: base64 }, { emitEvent: false });
+      this.store.updateImageUrl(base64);
+    } catch (error) {
+      console.error('Failed to convert image to base64:', error);
+      alert('Failed to upload image. Please try again.');
+      input.value = ''; // Reset input
+    }
+  }
+
+  /**
+   * Converts a file to base64 data URL
+   */
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
+   * Clears the uploaded image
+   */
+  clearImage(): void {
+    this.signatureForm.patchValue({ imageUrl: '' }, { emitEvent: false });
+    this.store.updateImageUrl('');
+    // Reset file input if it exists
+    const fileInput = document.getElementById(
+      'imageUpload'
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   }
 }

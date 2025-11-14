@@ -77,12 +77,84 @@ export const SignatureStore = signalStore(
     })),
   })),
   withMethods((store) => {
+    // Cache for base64 images
+    const base64Cache = new Map<string, string>();
+
+    // Helper function to convert image to base64
+    const imageToBase64 = async (imagePath: string): Promise<string> => {
+      // If already a base64 data URL, return as-is
+      if (imagePath.startsWith('data:image/')) {
+        return imagePath;
+      }
+
+      // Check cache first
+      if (base64Cache.has(imagePath)) {
+        return base64Cache.get(imagePath)!;
+      }
+
+      try {
+        // Resolve relative paths (assets/*) to absolute URLs
+        let resolvedPath = imagePath;
+        if (
+          imagePath.startsWith('assets/') ||
+          imagePath.startsWith('/assets/')
+        ) {
+          // For relative asset paths, resolve to current origin
+          const basePath = imagePath.startsWith('/')
+            ? imagePath
+            : `/${imagePath}`;
+          resolvedPath = `${window.location.origin}${basePath}`;
+        } else if (
+          !imagePath.startsWith('http://') &&
+          !imagePath.startsWith('https://') &&
+          !imagePath.startsWith('data:')
+        ) {
+          // For other relative paths, resolve to current origin
+          const basePath = imagePath.startsWith('/')
+            ? imagePath
+            : `/${imagePath}`;
+          resolvedPath = `${window.location.origin}${basePath}`;
+        }
+
+        // Fetch the image
+        const response = await fetch(resolvedPath);
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch image: ${resolvedPath} (${response.status})`
+          );
+        }
+        const blob = await response.blob();
+
+        // Convert to base64
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            base64Cache.set(imagePath, base64);
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error(`Failed to convert image to base64: ${imagePath}`, error);
+        // Return original path as fallback
+        return imagePath;
+      }
+    };
+
     // Helper function to get image URL with base URL
     const getImageUrl = (
       relativePath: string,
       baseUrlOverride: string = '',
-      stateOverride?: SignatureState
+      stateOverride?: SignatureState,
+      useBase64: boolean = false
     ) => {
+      // If useBase64 is true, return the path as-is (will be converted later)
+      if (useBase64) {
+        return relativePath;
+      }
+
       const effectiveBaseUrl =
         baseUrlOverride || stateOverride?.baseUrl || store.baseUrl();
       if (effectiveBaseUrl) {
@@ -164,6 +236,58 @@ export const SignatureStore = signalStore(
 
       reset(): void {
         patchState(store, initialState);
+      },
+
+      /**
+       * Converts all image src attributes in HTML to base64
+       * @param html - HTML string with image src attributes
+       * @returns Promise that resolves to HTML with base64 image src
+       */
+      async convertImagesToBase64(html: string): Promise<string> {
+        // Extract all image src attributes
+        const imgSrcRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+        const imageUrls = new Set<string>();
+        let match;
+
+        while ((match = imgSrcRegex.exec(html)) !== null) {
+          const imageUrl = match[1];
+          // Skip if already base64 data URL
+          if (!imageUrl.startsWith('data:image/')) {
+            imageUrls.add(imageUrl);
+          }
+        }
+
+        // If all images are already base64, return as-is
+        if (imageUrls.size === 0) {
+          return html;
+        }
+
+        // Convert all images to base64
+        const base64Map = new Map<string, string>();
+        await Promise.all(
+          Array.from(imageUrls).map(async (url) => {
+            try {
+              const base64 = await imageToBase64(url);
+              // Only update if conversion was successful (not fallback to original)
+              if (base64 && base64.startsWith('data:image/')) {
+                base64Map.set(url, base64);
+              }
+            } catch (error) {
+              console.error(`Failed to convert image ${url} to base64:`, error);
+            }
+          })
+        );
+
+        // Replace all image src attributes with base64
+        let result = html;
+        base64Map.forEach((base64, url) => {
+          // Escape special regex characters in URL
+          const escapedUrl = url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(`src=["']${escapedUrl}["']`, 'gi');
+          result = result.replace(regex, `src="${base64}"`);
+        });
+
+        return result;
       },
 
       /**
