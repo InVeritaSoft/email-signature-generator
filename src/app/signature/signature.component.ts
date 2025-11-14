@@ -302,6 +302,8 @@ export class SignatureComponent implements OnInit {
     SignatureVariant.Quadrant,
     SignatureVariant.HorizontalLogo,
     SignatureVariant.GradientBlue,
+    SignatureVariant.HorizontalSimple,
+    SignatureVariant.VerticalSimple,
   ];
 
   /**

@@ -686,6 +686,14 @@
   background: linear-gradient(to right, #e6e7e8 30%, #0072da 30%);
 }
 
+.preview-horizontal-simple {
+  background: linear-gradient(to right, #0072da 50%, #ffffff 50%);
+}
+
+.preview-vertical-simple {
+  background: linear-gradient(to bottom, #0072da 20%, #ffffff 20%);
+}
+
 .variant-name {
   font-family: "Montserrat", sans-serif;
   font-size: 12px;
@@ -763,6 +771,121 @@
 
 .signature-container.variant-gradient-blue .right-column {
   gap: 1px;
+}
+
+.signature-container.variant-horizontal-simple {
+  background-color: #ffffff;
+  width: 400px;
+}
+
+.signature-container.variant-horizontal-simple .portrait-container {
+  display: none;
+}
+
+.signature-container.variant-horizontal-simple .logo-container {
+  background-color: #0072da;
+  width: 140px;
+  padding: 10px 20px;
+  height: auto;
+}
+
+.signature-container.variant-horizontal-simple .logo-image {
+  filter: brightness(0) invert(1);
+}
+
+.signature-container.variant-horizontal-simple .signature-content {
+  flex-direction: row;
+  align-items: center;
+}
+
+.signature-container.variant-horizontal-simple .left-column {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.signature-container.variant-horizontal-simple .right-column {
+  flex: 1;
+}
+
+.signature-container.variant-horizontal-simple .contact-info-container {
+  background-color: #ffffff;
+}
+
+.signature-container.variant-horizontal-simple .name,
+.signature-container.variant-horizontal-simple .title {
+  color: #000000;
+}
+
+.signature-container.variant-horizontal-simple .website-link {
+  color: #000000;
+}
+
+.signature-container.variant-horizontal-simple .website-link p {
+  color: #000000;
+}
+
+.signature-container.variant-horizontal-simple .social-section {
+  display: none;
+}
+
+.signature-container.variant-horizontal-simple .linkedin-section {
+  display: none;
+}
+
+.signature-container.variant-vertical-simple {
+  background-color: #ffffff;
+  width: 400px;
+}
+
+.signature-container.variant-vertical-simple .portrait-container {
+  display: none;
+}
+
+.signature-container.variant-vertical-simple .signature-content {
+  flex-direction: column;
+}
+
+.signature-container.variant-vertical-simple .left-column {
+  width: 100%;
+}
+
+.signature-container.variant-vertical-simple .logo-container {
+  background-color: #0072da;
+  width: 100%;
+  text-align: center;
+}
+
+.signature-container.variant-vertical-simple .logo-image {
+  filter: brightness(0) invert(1);
+}
+
+.signature-container.variant-vertical-simple .right-column {
+  width: 100%;
+}
+
+.signature-container.variant-vertical-simple .contact-info-container {
+  background-color: #ffffff;
+}
+
+.signature-container.variant-vertical-simple .name,
+.signature-container.variant-vertical-simple .title {
+  color: #000000;
+}
+
+.signature-container.variant-vertical-simple .website-link {
+  color: #000000;
+}
+
+.signature-container.variant-vertical-simple .website-link p {
+  color: #000000;
+}
+
+.signature-container.variant-vertical-simple .linkedin-section {
+  display: none;
+}
+
+.signature-container.variant-vertical-simple .icon-image {
+  filter: none;
 }
 
 /* Variant-specific logo container backgrounds for white logo visibility */

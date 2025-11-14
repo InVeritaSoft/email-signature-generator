@@ -16,6 +16,8 @@ export enum SignatureVariant {
   Quadrant = 'quadrant',
   HorizontalLogo = 'horizontal-logo',
   GradientBlue = 'gradient-blue',
+  HorizontalSimple = 'horizontal-simple',
+  VerticalSimple = 'vertical-simple',
 }
 
 export interface SignatureState {
@@ -282,6 +284,26 @@ export const SignatureStore = signalStore(
             );
           case SignatureVariant.GradientBlue:
             return this.generateGradientBlueVariant(
+              state,
+              baseUrlOverride,
+              portraitUrl,
+              logoUrlValue,
+              facebookIconUrlValue,
+              youtubeIconUrlValue,
+              linkedInIconUrlValue
+            );
+          case SignatureVariant.HorizontalSimple:
+            return this.generateHorizontalSimpleVariant(
+              state,
+              baseUrlOverride,
+              portraitUrl,
+              logoUrlValue,
+              facebookIconUrlValue,
+              youtubeIconUrlValue,
+              linkedInIconUrlValue
+            );
+          case SignatureVariant.VerticalSimple:
+            return this.generateVerticalSimpleVariant(
               state,
               baseUrlOverride,
               portraitUrl,
@@ -1199,6 +1221,154 @@ export const SignatureStore = signalStore(
                 </td>
               </tr>
             </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
+      },
+
+      generateHorizontalSimpleVariant(
+        state: SignatureState,
+        baseUrlOverride: string,
+        portraitUrl: string,
+        logoUrlValue: string,
+        facebookIconUrlValue: string,
+        youtubeIconUrlValue: string,
+        linkedInIconUrlValue: string
+      ): string {
+        const name = state.name || '';
+        const title = state.title || '';
+        const linkedInUrl = state.linkedInUrl || '';
+        const linkedInText = state.linkedInText || '';
+        const websiteUrl = state.websiteUrl || '';
+        const websiteText = state.websiteText || '';
+        const facebookUrl = state.facebookUrl || '';
+        const youtubeUrl = state.youtubeUrl || '';
+        const linkedInSocialUrl = state.linkedInSocialUrl || '';
+
+        return `<!-- Main Container Table -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="400" style="background-color: #ffffff; padding: 0; margin: 0 auto; border: 0;">
+  <tr>
+    <td>
+      <table role="presentation" cellspacing="10" cellpadding="0" border="0" width="100%" style="background-color: #ffffff;">
+        <tr>
+          <!-- Logo on Left -->
+          <td valign="middle" width="140" style="width: 140px; padding: 10px 20px; vertical-align: middle; background-color: #0072DA; text-align: center;">
+            <img src="${logoUrlValue}" alt="Inverita logo" width="140" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+          </td>
+          <!-- Text on Right -->
+          <td valign="top" style="padding: 20px 20px 20px 0; vertical-align: top; background-color: #ffffff;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td style="padding: 0 0 4px 0;">
+                  <p style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; font-size: 20px; font-weight: 600; line-height: 28px; color: #000000;">
+                    ${name}
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 0 0 12px 0;">
+                  <p style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 400; line-height: 24px; color: #000000;">
+                    ${title}
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 0;">
+                  <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: underline; color: #000000; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px;">
+                    ${websiteText}
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
+      },
+
+      generateVerticalSimpleVariant(
+        state: SignatureState,
+        baseUrlOverride: string,
+        portraitUrl: string,
+        logoUrlValue: string,
+        facebookIconUrlValue: string,
+        youtubeIconUrlValue: string,
+        linkedInIconUrlValue: string
+      ): string {
+        const name = state.name || '';
+        const title = state.title || '';
+        const linkedInUrl = state.linkedInUrl || '';
+        const linkedInText = state.linkedInText || '';
+        const websiteUrl = state.websiteUrl || '';
+        const websiteText = state.websiteText || '';
+        const facebookUrl = state.facebookUrl || '';
+        const youtubeUrl = state.youtubeUrl || '';
+        const linkedInSocialUrl = state.linkedInSocialUrl || '';
+
+        return `<!-- Main Container Table -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="400" style="background-color: #ffffff; padding: 20px; margin: 0 auto; border: 0;">
+  <tr>
+    <td>
+      <!-- Logo -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+          <td style="padding: 0 0 20px 0; height: 60px; text-align: center; vertical-align: middle; background-color: #0072DA;">
+            <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+          </td>
+        </tr>
+      </table>
+      
+      <!-- Name and Title -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+          <td style="padding: 0 0 4px 0;">
+            <p style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; font-size: 20px; font-weight: 600; line-height: 28px; color: #000000;">
+              ${name}
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 0 0 20px 0;">
+            <p style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 400; line-height: 24px; color: #000000;">
+              ${title}
+            </p>
+          </td>
+        </tr>
+      </table>
+      
+      <!-- Website Link -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+          <td style="padding: 0 0 20px 0;">
+            <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: underline; color: #000000; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px;">
+              ${websiteText}
+            </a>
+          </td>
+        </tr>
+      </table>
+      
+      <!-- Social Media Icons -->
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+          <td style="padding: 0 14px 0 0;">
+            <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
+              <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+            </a>
+          </td>
+          <td style="padding: 0 14px 0 0;">
+            <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
+              <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+            </a>
+          </td>
+          <td style="padding: 0;">
+            <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
+              <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+            </a>
           </td>
         </tr>
       </table>
