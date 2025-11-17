@@ -220,9 +220,9 @@
 
 .copy-button {
   padding: 12px 24px;
-  background-color: #1f2937;
+  background: var(--gradient-blue);
   color: #ffffff;
-  border: 1px solid #1f2937;
+  border: none;
   border-radius: 6px;
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
@@ -233,8 +233,8 @@
 }
 
 .copy-button:hover:not(:disabled) {
-  background-color: #111827;
-  border-color: #111827;
+  background: var(--gradient-blue);
+  opacity: 0.9;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -332,7 +332,7 @@
   display: block;
   max-width: none;
   width: auto;
-  height: 25px;
+  height: 35px;
 }
 
 /* Right Column Styles */
@@ -455,6 +455,45 @@
   line-height: 24px;
   margin: 0;
   padding: 0;
+}
+
+/* Website Link Section (moved from social section to personal section) */
+.website-link-section {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.website-link-section .website-link {
+  flex: 1 0 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  min-height: 1px;
+  min-width: 0;
+  height: 60px;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.website-link-section .website-link p {
+  line-height: 24px;
+  margin: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-position: from-font;
+  text-decoration-style: solid;
+  display: block;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  color: #000000;
+  font-size: 15px;
 }
 
 /* Social Section */
@@ -679,9 +718,9 @@
 
 /* Email Test Section */
 .email-test-section {
-  margin-top: 60px;
+  /* margin-top: 60px;
   padding-top: 60px;
-  border-top: 2px solid #e0e0e0;
+  border-top: 2px solid #e0e0e0; */
   width: 100%;
   max-width: 700px;
 }
@@ -760,9 +799,9 @@
 
 .copy-email-button {
   padding: 8px 16px;
-  background-color: #ffffff;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: var(--gradient-blue);
+  color: #ffffff;
+  border: none;
   border-radius: 6px;
   font-family: "Montserrat", sans-serif;
   font-size: 12px;
@@ -773,8 +812,8 @@
 }
 
 .copy-email-button:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background: var(--gradient-blue);
+  opacity: 0.9;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -1148,7 +1187,7 @@
 
 /* Variant-specific logo container backgrounds for white logo visibility */
 .signature-container.variant-classic .logo-container {
-  background: linear-gradient(30deg, #0072da 0%, #0056b3 100%);
+  background: var(--gradient-blue);
 }
 
 .signature-container.variant-dark .logo-container {
@@ -1190,7 +1229,7 @@
 
 /* Variant-specific contact-info-container backgrounds */
 .signature-container.variant-classic .contact-info-container {
-  background-color: #e6e7e8;
+  background-color: #fbf9ff;
 }
 
 .signature-container.variant-dark .contact-info-container {
@@ -1232,7 +1271,7 @@
 
 /* Variant-specific social section backgrounds */
 .signature-container.variant-classic .social-section {
-  background-color: #808080;
+  background-color: #e2e1e6;
 }
 
 .signature-container.variant-dark .social-section {
@@ -1342,5 +1381,5 @@
 
 /* Variant-specific linkedin link backgrounds */
 .signature-container.variant-classic .linkedin-link {
-  background-color: #e6e7e8;
+  background-color: #fbf9ff;
 }

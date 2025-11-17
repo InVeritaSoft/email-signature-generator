@@ -56,9 +56,8 @@ export const GRADIENTS = {
   default: 'linear-gradient(163deg, #006BE5 6.89%, #7AD0CB 51.29%, #E0EEB5 86.54%, #FAF6AF 105.16%, #FFF 181.75%)',
   
   /**
-   * Blue gradient (same as default)
-   * Alias for default gradient for semantic clarity
+   * Blue gradient - matches --gradient-blue CSS variable
    */
-  blue: 'linear-gradient(163deg, #006BE5 6.89%, #7AD0CB 51.29%, #E0EEB5 86.54%, #FAF6AF 105.16%, #FFF 181.75%)',
+  blue: 'linear-gradient(300deg, #FAF6AF -91.29%, #7AD0CB -15.73%, #006BE5 75.91%)',
 } as const;
 

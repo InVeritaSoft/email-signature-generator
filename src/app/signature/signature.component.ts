@@ -468,6 +468,17 @@ export class SignatureComponent implements OnInit {
   ];
 
   /**
+   * Get visible variants (only Classic and GradientBlue are shown)
+   */
+  readonly visibleVariants = computed(() => {
+    return this.variants.filter(
+      (variant) =>
+        variant === SignatureVariant.Classic ||
+        variant === SignatureVariant.GradientBlue
+    );
+  });
+
+  /**
    * Get display name for variant (handles hyphenated names)
    */
   getVariantDisplayName(variant: SignatureVariant): string {

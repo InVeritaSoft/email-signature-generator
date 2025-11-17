@@ -108,6 +108,11 @@ const FACEBOOK_ICON_PATH = 'assets/facebook-fill.png';
 const YOUTUBE_ICON_PATH = 'assets/youtube-fill.png';
 const LINKEDIN_ICON_PATH = 'assets/linkedin-fill.png';
 
+// Social icon PNG assets for Classic variant (with -b suffix)
+const FACEBOOK_ICON_PATH_B = 'assets/facebook-fill-b.png';
+const YOUTUBE_ICON_PATH_B = 'assets/youtube-fill-b.png';
+const LINKEDIN_ICON_PATH_B = 'assets/linkedin-fill-b.png';
+
 // Cache for pre-converted base64 social icons
 const socialIconBase64Cache = new Map<string, string>();
 
@@ -121,13 +126,17 @@ const loadPngToBase64 = async (imagePath: string): Promise<string> => {
   try {
     // Determine the full URL based on context (Chrome extension vs web)
     let fullUrl: string;
-    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.runtime &&
+      chrome.runtime.getURL
+    ) {
       // Chrome extension context
       fullUrl = chrome.runtime.getURL(imagePath);
     } else {
       // Web context - use relative path or construct from window.location
-      fullUrl = imagePath.startsWith('http') 
-        ? imagePath 
+      fullUrl = imagePath.startsWith('http')
+        ? imagePath
         : `${window.location.origin}/${imagePath}`;
     }
 
@@ -138,7 +147,7 @@ const loadPngToBase64 = async (imagePath: string): Promise<string> => {
     }
 
     const blob = await response.blob();
-    
+
     // Convert blob to base64
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -161,12 +170,15 @@ const loadPngToBase64 = async (imagePath: string): Promise<string> => {
 let socialIconsLoaded = false;
 const preloadSocialIcons = async (): Promise<void> => {
   if (socialIconsLoaded) return;
-  
+
   try {
     await Promise.all([
       loadPngToBase64(FACEBOOK_ICON_PATH),
       loadPngToBase64(YOUTUBE_ICON_PATH),
       loadPngToBase64(LINKEDIN_ICON_PATH),
+      loadPngToBase64(FACEBOOK_ICON_PATH_B),
+      loadPngToBase64(YOUTUBE_ICON_PATH_B),
+      loadPngToBase64(LINKEDIN_ICON_PATH_B),
     ]);
     socialIconsLoaded = true;
   } catch (error) {
@@ -176,30 +188,57 @@ const preloadSocialIcons = async (): Promise<void> => {
 
 // Get social icon as base64 img tag (synchronous - uses cached base64, loads on-demand if needed)
 // These functions return img tags with pre-converted base64 PNG data
-const getFacebookIconImg = (): string => {
-  let base64 = socialIconBase64Cache.get(FACEBOOK_ICON_PATH);
+// Variant determines which icon set to use: Classic uses -b versions, others use regular versions
+const getFacebookIconImg = (
+  variant: SignatureVariant = SignatureVariant.Classic
+): string => {
+  const iconPath =
+    variant === SignatureVariant.Classic
+      ? FACEBOOK_ICON_PATH_B
+      : FACEBOOK_ICON_PATH;
+  let base64 = socialIconBase64Cache.get(iconPath);
   if (!base64) {
-    // Load synchronously if not cached (blocking, but ensures icon is available)
-    // Use the existing imageToBase64 logic from the store methods
-    // For now, return a data URL that will be replaced by convertImagesToBase64
-    // Or we can use a synchronous fetch approach
-    return `<img src="assets/facebook-fill.png" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+    const fallbackPath =
+      variant === SignatureVariant.Classic
+        ? 'assets/facebook-fill-b.png'
+        : 'assets/facebook-fill.png';
+    return `<img src="${fallbackPath}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
   }
   return `<img src="${base64}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
 };
 
-const getYoutubeIconImg = (): string => {
-  let base64 = socialIconBase64Cache.get(YOUTUBE_ICON_PATH);
+const getYoutubeIconImg = (
+  variant: SignatureVariant = SignatureVariant.Classic
+): string => {
+  const iconPath =
+    variant === SignatureVariant.Classic
+      ? YOUTUBE_ICON_PATH_B
+      : YOUTUBE_ICON_PATH;
+  let base64 = socialIconBase64Cache.get(iconPath);
   if (!base64) {
-    return `<img src="assets/youtube-fill.png" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+    const fallbackPath =
+      variant === SignatureVariant.Classic
+        ? 'assets/youtube-fill-b.png'
+        : 'assets/youtube-fill.png';
+    return `<img src="${fallbackPath}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
   }
   return `<img src="${base64}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
 };
 
-const getLinkedInIconImg = (): string => {
-  let base64 = socialIconBase64Cache.get(LINKEDIN_ICON_PATH);
+const getLinkedInIconImg = (
+  variant: SignatureVariant = SignatureVariant.Classic
+): string => {
+  const iconPath =
+    variant === SignatureVariant.Classic
+      ? LINKEDIN_ICON_PATH_B
+      : LINKEDIN_ICON_PATH;
+  let base64 = socialIconBase64Cache.get(iconPath);
   if (!base64) {
-    return `<img src="assets/linkedin-fill.png" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+    const fallbackPath =
+      variant === SignatureVariant.Classic
+        ? 'assets/linkedin-fill-b.png'
+        : 'assets/linkedin-fill.png';
+    return `<img src="${fallbackPath}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
   }
   return `<img src="${base64}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
 };
@@ -261,7 +300,7 @@ export const SignatureStore = signalStore(
     onInit: async (store) => {
       // Pre-load social icons to base64 cache
       await preloadSocialIcons();
-      
+
       // Load state from Chrome Storage on initialization
       const savedState = await loadFromStorage();
       let isInitializing = true;
@@ -337,10 +376,10 @@ export const SignatureStore = signalStore(
   withMethods((store) => {
     // Cache for base64 images
     const base64Cache = new Map<string, string>();
-    
+
     // Promise that resolves when social icons are loaded
     let socialIconsLoadPromise: Promise<void> | null = null;
-    
+
     // Ensure social icons are loaded (can be called multiple times safely)
     const ensureSocialIconsLoaded = async (): Promise<void> => {
       if (socialIconsLoadPromise) {
@@ -553,10 +592,8 @@ export const SignatureStore = signalStore(
        */
       svgToBase64(svgString: string): string {
         // Remove any existing XML declaration and clean up the SVG
-        const cleanedSvg = svgString
-          .replace(/<\?xml[^>]*\?>/gi, '')
-          .trim();
-        
+        const cleanedSvg = svgString.replace(/<\?xml[^>]*\?>/gi, '').trim();
+
         // Encode SVG to base64
         const base64 = btoa(unescape(encodeURIComponent(cleanedSvg)));
         return `data:image/svg+xml;base64,${base64}`;
@@ -574,7 +611,10 @@ export const SignatureStore = signalStore(
         // Use a more flexible regex that handles whitespace variations
         const svgRegex = /<svg[^>]*>[\s\S]*?<\/svg>/gi;
         let svgMatch;
-        const svgReplacements: Array<{ original: string; replacement: string }> = [];
+        const svgReplacements: Array<{
+          original: string;
+          replacement: string;
+        }> = [];
 
         // Reset regex lastIndex to ensure we match all occurrences
         svgRegex.lastIndex = 0;
@@ -585,59 +625,82 @@ export const SignatureStore = signalStore(
           // Skip if already in an img tag with data URL
           if (!svgString.includes('data:image/')) {
             // Convert SVG to base64 data URL
-            const cleanedSvg = svgString
-              .replace(/<\?xml[^>]*\?>/gi, '')
-              .trim();
-            
+            const cleanedSvg = svgString.replace(/<\?xml[^>]*\?>/gi, '').trim();
+
             try {
               const base64 = btoa(unescape(encodeURIComponent(cleanedSvg)));
               const base64DataUrl = `data:image/svg+xml;base64,${base64}`;
-              
+
               // Verify base64 conversion worked
-              if (!base64DataUrl || base64DataUrl.length < 50 || !base64DataUrl.startsWith('data:image/svg+xml;base64,')) {
-                console.error('Invalid base64 data URL generated for SVG. Length:', base64DataUrl?.length, 'Starts with data:', base64DataUrl?.startsWith('data:'));
+              if (
+                !base64DataUrl ||
+                base64DataUrl.length < 50 ||
+                !base64DataUrl.startsWith('data:image/svg+xml;base64,')
+              ) {
+                console.error(
+                  'Invalid base64 data URL generated for SVG. Length:',
+                  base64DataUrl?.length,
+                  'Starts with data:',
+                  base64DataUrl?.startsWith('data:')
+                );
                 continue;
               }
-              
+
               // Extract color from SVG fill attribute if present
               const fillMatch = svgString.match(/fill=["']([^"']+)["']/i);
               const svgColor = fillMatch ? fillMatch[1] : 'currentColor';
-              const iconStyle = 'display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;';
-              
+              const iconStyle =
+                'display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;';
+
               // Ensure src attribute is properly quoted and base64DataUrl is valid
               if (!base64DataUrl || base64DataUrl.trim() === '') {
                 console.error('base64DataUrl is empty, skipping replacement');
                 continue;
               }
-              
+
               const imgTag = `<img src="${base64DataUrl}" alt="icon" width="24" height="24" style="${iconStyle}" />`;
-              
+
               // Verify the img tag was created correctly
-              if (!imgTag.includes('src="') || !imgTag.includes(base64DataUrl)) {
-                console.error('Failed to create img tag with src. imgTag:', imgTag.substring(0, 100));
+              if (
+                !imgTag.includes('src="') ||
+                !imgTag.includes(base64DataUrl)
+              ) {
+                console.error(
+                  'Failed to create img tag with src. imgTag:',
+                  imgTag.substring(0, 100)
+                );
                 continue;
               }
-              
-              svgReplacements.push({ original: svgString, replacement: imgTag });
+
+              svgReplacements.push({
+                original: svgString,
+                replacement: imgTag,
+              });
             } catch (error) {
-              console.error('Failed to convert SVG to base64:', error, svgString.substring(0, 100));
+              console.error(
+                'Failed to convert SVG to base64:',
+                error,
+                svgString.substring(0, 100)
+              );
             }
           }
         }
-        
 
         // Replace inline SVG with img tags using base64 data URLs
         // Process in reverse order to maintain correct indices (to avoid index shifting)
         for (let i = svgReplacements.length - 1; i >= 0; i--) {
           const { original, replacement } = svgReplacements[i];
-          
+
           // Try exact match first (most reliable)
           let index = result.indexOf(original);
           if (index !== -1) {
-            result = result.substring(0, index) + replacement + result.substring(index + original.length);
+            result =
+              result.substring(0, index) +
+              replacement +
+              result.substring(index + original.length);
             continue;
           }
-          
+
           // Fallback: use regex with flexible whitespace matching
           // Normalize whitespace in both strings for comparison
           const normalizedOriginal = original.replace(/\s+/g, ' ').trim();
@@ -645,7 +708,7 @@ export const SignatureStore = signalStore(
           const svgPattern = normalizedOriginal
             .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars
             .replace(/\s+/g, '\\s+'); // Make whitespace flexible
-          
+
           try {
             const regex = new RegExp(svgPattern, 'gi');
             const match = result.match(regex);
@@ -654,7 +717,12 @@ export const SignatureStore = signalStore(
               result = result.replace(regex, replacement);
             }
           } catch (regexError) {
-            console.error('Regex replacement failed:', regexError, 'Pattern:', svgPattern.substring(0, 80));
+            console.error(
+              'Regex replacement failed:',
+              regexError,
+              'Pattern:',
+              svgPattern.substring(0, 80)
+            );
           }
         }
 
@@ -666,14 +734,19 @@ export const SignatureStore = signalStore(
         while ((imgTagMatch = imgTagRegex.exec(result)) !== null) {
           allImgTags.push(imgTagMatch[0]);
         }
-        
+
         // Check for img tags without src and try to fix them if they're our icon tags
-        const imgTagsWithoutSrc = allImgTags.filter(imgTag => !imgTag.includes('src='));
+        const imgTagsWithoutSrc = allImgTags.filter(
+          (imgTag) => !imgTag.includes('src=')
+        );
         if (imgTagsWithoutSrc.length > 0) {
-          console.error(`Found ${imgTagsWithoutSrc.length} img tag(s) without src attribute:`, imgTagsWithoutSrc);
-          
+          console.error(
+            `Found ${imgTagsWithoutSrc.length} img tag(s) without src attribute:`,
+            imgTagsWithoutSrc
+          );
+
           // Try to fix icon img tags that might have been created incorrectly
-          imgTagsWithoutSrc.forEach(brokenImgTag => {
+          imgTagsWithoutSrc.forEach((brokenImgTag) => {
             if (brokenImgTag.includes('alt="icon"')) {
               // This shouldn't happen if our code is working correctly
             }
@@ -775,12 +848,13 @@ export const SignatureStore = signalStore(
           baseUrlOverride,
           stateOverride
         );
-        
+
         // Use pre-converted base64 PNG img tags for social icons
         // Icons are pre-loaded to base64 cache on store initialization
-        const facebookIconImg = getFacebookIconImg();
-        const youtubeIconImg = getYoutubeIconImg();
-        const linkedInIconImg = getLinkedInIconImg();
+        // Classic variant uses -b versions, others use regular versions
+        const facebookIconImg = getFacebookIconImg(variant);
+        const youtubeIconImg = getYoutubeIconImg(variant);
+        const linkedInIconImg = getLinkedInIconImg(variant);
 
         // Route to appropriate variant template
         switch (variant) {
@@ -914,8 +988,8 @@ export const SignatureStore = signalStore(
               </tr>
               <!-- Logo -->
               <tr>
-                <td style="padding: 0; background: linear-gradient(30deg, #0072DA 0%, #0056b3 100%); height: 60px; text-align: center; vertical-align: middle;">
-                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
+                <td style="padding: 0; background: linear-gradient(300deg, #FAF6AF -91.29%, #7AD0CB -15.73%, #006BE5 75.91%); height: 60px; text-align: center; vertical-align: middle;">
+                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
                 </td>
               </tr>
             </table>
@@ -926,7 +1000,7 @@ export const SignatureStore = signalStore(
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fbfbfb;">
               <!-- Contact Info Container -->
               <tr>
-                <td style="background-color: #e6e7e8; padding: 20px; width: 100%;">
+                <td style="background-color: #fbf9ff; padding: 20px; width: 100%;">
                   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                     <!-- Name -->
                     <tr>
@@ -946,14 +1020,24 @@ export const SignatureStore = signalStore(
                     </tr>
                     <!-- Spacer -->
                     <tr>
-                      <td style="padding: 0; height: 60px; line-height: 4px; font-size: 4px;">&nbsp;</td>
+                      <td style="padding: 0; height: 36px; line-height: 4px; font-size: 4px;">&nbsp;</td>
                     </tr>
                     <!-- LinkedIn Link -->
                     <tr>
                       <td style="padding: 0;">
-                        <a href="${linkedInUrl}" style="display: block; text-decoration: none; color: inherit; background-color: #e6e7e8; height: 24px; line-height: 24px;">
+                        <a href="${linkedInUrl}" style="display: block; text-decoration: none; color: inherit; background-color: #fbf9ff; height: 24px; line-height: 24px;">
                           <p style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; color: #6b7280;">
                             ${linkedInText}
+                          </p>
+                        </a>
+                      </td>
+                    </tr>
+                    <!-- Website Link -->
+                    <tr>
+                      <td style="padding: 0;">
+                        <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: underline; color: #000000; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; background-color: #fbf9ff; height: 24px; line-height: 24px;">
+                          <p style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; color: #000000;">
+                            ${websiteText}
                           </p>
                         </a>
                       </td>
@@ -964,34 +1048,28 @@ export const SignatureStore = signalStore(
               
               <!-- Social Media Section -->
               <tr>
-                <td style="background-color: #808080; padding: 0;">
+                <td style="background-color: #e2e1e6; padding: 0;">
                   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                     <tr>
                       <td style="padding: 0;">
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0;">
                           <tr>
                             <!-- Facebook Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${linkedInIconImg}
-                              </a>
-                            </td>
-                            <!-- Website Link -->
-                            <td style="padding: 0 8px; height: 60px; text-align: center; vertical-align: middle;">
-                              <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: underline; color: #000000; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px;">
-                                ${websiteText}
                               </a>
                             </td>
                           </tr>
@@ -1048,7 +1126,7 @@ export const SignatureStore = signalStore(
               <!-- Logo -->
               <tr>
                 <td style="padding: 0; background-color: #231F20; height: 60px; text-align: center; vertical-align: middle;">
-                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
+                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
                 </td>
               </tr>
             </table>
@@ -1079,7 +1157,7 @@ export const SignatureStore = signalStore(
                     </tr>
                     <!-- Spacer -->
                     <tr>
-                      <td style="padding: 0; height: 60px; line-height: 4px; font-size: 4px;">&nbsp;</td>
+                      <td style="padding: 0; height: 36px; line-height: 4px; font-size: 4px;">&nbsp;</td>
                     </tr>
                     <!-- LinkedIn Link -->
                     <tr>
@@ -1104,19 +1182,19 @@ export const SignatureStore = signalStore(
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0;">
                           <tr>
                             <!-- Facebook Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${linkedInIconImg}
                               </a>
@@ -1187,7 +1265,7 @@ export const SignatureStore = signalStore(
               <!-- Logo -->
               <tr>
                 <td style="padding: 0; background-color: #0072DA; height: 60px; text-align: center; vertical-align: middle;">
-                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
                 </td>
               </tr>
             </table>
@@ -1223,7 +1301,7 @@ export const SignatureStore = signalStore(
                     </tr>
                     <!-- Spacer -->
                     <tr>
-                      <td style="padding: 0; height: 60px; line-height: 4px; font-size: 4px;">&nbsp;</td>
+                      <td style="padding: 0; height: 36px; line-height: 4px; font-size: 4px;">&nbsp;</td>
                     </tr>
                     <!-- LinkedIn Link -->
                     <tr>
@@ -1255,19 +1333,19 @@ export const SignatureStore = signalStore(
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0;">
                           <tr>
                             <!-- Facebook Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${linkedInIconImg}
                               </a>
@@ -1321,7 +1399,7 @@ export const SignatureStore = signalStore(
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td style="padding: 0 0 20px 0; height: 60px; text-align: center; vertical-align: middle; background-color: transparent;">
-            <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+            <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
           </td>
         </tr>
       </table>
@@ -1431,7 +1509,7 @@ export const SignatureStore = signalStore(
               <!-- Logo -->
               <tr>
                 <td style="padding: 0; background-color: #231F20; height: 60px; text-align: center; vertical-align: middle;">
-                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
                 </td>
               </tr>
             </table>
@@ -1467,7 +1545,7 @@ export const SignatureStore = signalStore(
                     </tr>
                     <!-- Spacer -->
                     <tr>
-                      <td style="padding: 0; height: 60px; line-height: 4px; font-size: 4px;">&nbsp;</td>
+                      <td style="padding: 0; height: 36px; line-height: 4px; font-size: 4px;">&nbsp;</td>
                     </tr>
                     <!-- LinkedIn Link -->
                     <tr>
@@ -1499,19 +1577,19 @@ export const SignatureStore = signalStore(
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0;">
                           <tr>
                             <!-- Facebook Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${linkedInIconImg}
                               </a>
@@ -1565,7 +1643,7 @@ export const SignatureStore = signalStore(
         <tr>
           <!-- Logo on Left -->
           <td valign="middle" width="180" style="width: 180px; padding: 20px; vertical-align: middle; background-color: transparent; text-align: center;">
-            <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+            <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
           </td>
           <!-- Text on Right -->
           <td valign="top" style="padding: 20px 20px 20px 0; vertical-align: top; background-color: transparent;">
@@ -1674,7 +1752,7 @@ export const SignatureStore = signalStore(
               <!-- Logo -->
               <tr>
                 <td style="padding: 0; background-color: #FFFFFF; height: 60px; text-align: center; vertical-align: middle;">
-                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0);" />
+                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0);" />
                 </td>
               </tr>
             </table>
@@ -1710,7 +1788,7 @@ export const SignatureStore = signalStore(
                     </tr>
                     <!-- Spacer -->
                     <tr>
-                      <td style="padding: 0; height: 60px; line-height: 4px; font-size: 4px;">&nbsp;</td>
+                      <td style="padding: 0; height: 36px; line-height: 4px; font-size: 4px;">&nbsp;</td>
                     </tr>
                     <!-- LinkedIn Link -->
                     <tr>
@@ -1718,6 +1796,16 @@ export const SignatureStore = signalStore(
                         <a href="${linkedInUrl}" style="display: block; text-decoration: none; color: inherit; background-color: transparent; height: 24px; line-height: 24px;">
                           <p style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; color: #FFFFFF;">
                             ${linkedInText}
+                          </p>
+                        </a>
+                      </td>
+                    </tr>
+                    <!-- Website Link -->
+                    <tr>
+                      <td style="padding: 0;">
+                        <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: underline; color: #FFFFFF; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; background-color: transparent; height: 24px; line-height: 24px;">
+                          <p style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; color: #FFFFFF;">
+                            ${websiteText}
                           </p>
                         </a>
                       </td>
@@ -1742,27 +1830,21 @@ export const SignatureStore = signalStore(
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0;">
                           <tr>
                             <!-- Facebook Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
-                            <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
+                            <td style="padding: 0; width: 60px; height: 60px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
                                 ${linkedInIconImg}
-                              </a>
-                            </td>
-                            <!-- Website Link -->
-                            <td style="padding: 0 8px; height: 59px; text-align: center; vertical-align: middle;">
-                              <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: underline; color: #FFFFFF; font-family: 'Montserrat', Arial, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px;">
-                                ${websiteText}
                               </a>
                             </td>
                           </tr>
@@ -1808,7 +1890,7 @@ export const SignatureStore = signalStore(
         <tr>
           <!-- Logo on Left -->
           <td valign="middle" width="140" style="width: 140px; padding: 10px 20px; vertical-align: middle; background-color: #0072DA; text-align: center;">
-            <img src="${logoUrlValue}" alt="Inverita logo" width="140" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+            <img src="${logoUrlValue}" alt="Inverita logo" width="140" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
           </td>
           <!-- Text on Right -->
           <td valign="top" style="padding: 20px 20px 20px 0; vertical-align: top; background-color: #ffffff;">
@@ -1870,7 +1952,7 @@ export const SignatureStore = signalStore(
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td style="padding: 0 0 20px 0; height: 60px; text-align: center; vertical-align: middle; background-color: #0072DA;">
-            <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="25" style="display: block; width: auto; height: 25px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+            <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
           </td>
         </tr>
       </table>

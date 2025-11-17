@@ -6,7 +6,7 @@
       <label class="variant-label">Choose Signature Style:</label>
       <div class="variant-thumbnails">
         <div
-          *ngFor="let variant of variants"
+          *ngFor="let variant of visibleVariants()"
           class="variant-thumbnail"
           [class.active]="store.variant() === variant"
           (click)="selectVariant(variant)"
@@ -20,7 +20,9 @@
   </div>
 
   <!-- Column 2: Preview Section -->
+
   <div class="preview-column">
+    <!--
     <h2>Preview</h2>
     <div
       class="signature-container"
@@ -32,9 +34,7 @@
         [class]="'variant-' + store.variant()"
         data-node-id="136:144"
       >
-        <!-- Left Column: Portrait and Logo -->
         <div class="left-column" data-node-id="136:145">
-          <!-- Photo Section -->
           <div
             class="portrait-container photo-section"
             data-name="portrait-image"
@@ -47,7 +47,6 @@
               class="portrait-image"
             />
           </div>
-          <!-- Logo Section -->
           <div
             class="logo-container logo-section"
             data-name="company-logo"
@@ -58,14 +57,11 @@
           </div>
         </div>
 
-        <!-- Right Column: Contact Information -->
         <div class="right-column" data-node-id="136:159">
-          <!-- Personal Info Section -->
           <div
             class="contact-info-container personal-section"
             data-section="personal-section"
           >
-            <!-- Name and Title Section -->
             <div class="contact-info" data-node-id="136:160">
               <div class="contact-details" data-node-id="136:161">
                 <p class="name" data-name="name" data-node-id="136:162">
@@ -78,7 +74,6 @@
               </div>
             </div>
 
-            <!-- LinkedIn Link Section -->
             <div
               class="linkedin-section"
               data-name="linkedin-link"
@@ -95,9 +90,20 @@
                 </div>
               </a>
             </div>
+            <div class="website-link-section">
+              <a
+                [href]="store.websiteUrl()"
+                class="website-link"
+                data-name="website-link"
+                data-node-id="136:182"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <p>{{ store.websiteText() || store.websiteUrl() }}</p>
+              </a>
+            </div>
           </div>
 
-          <!-- Social Info Section -->
           <div
             class="social-section social-info-section"
             data-section="social-section"
@@ -152,26 +158,12 @@
                   </div>
                 </a>
               </div>
-              <div class="website-link-container" data-node-id="136:180">
-                <div class="website-link-wrapper" data-node-id="136:181">
-                  <a
-                    [href]="store.websiteUrl()"
-                    class="website-link"
-                    data-name="website-link"
-                    data-node-id="136:182"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <p>{{ store.websiteText() || store.websiteUrl() }}</p>
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
+  -->
     <!-- Email Test Section -->
     <div class="email-test-section">
       <!-- <div class="controls">
@@ -195,8 +187,8 @@
 
       <div class="preview-section">
         <div class="preview-header">
-          <h3>Email Preview</h3>
-          <div class="copy-email-wrapper">
+          <h2>Email Preview</h2>
+          <!-- <div class="copy-email-wrapper">
             <button
               type="button"
               (click)="copyEmailPreviewToClipboard()"
@@ -207,7 +199,7 @@
             <div *ngIf="emailPreviewCopySuccess()" class="email-copy-success">
               ✓ Copied!
             </div>
-          </div>
+          </div> -->
         </div>
         <div class="email-preview-container" [innerHTML]="emailHtml()"></div>
       </div>
@@ -354,9 +346,16 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" (click)="copyToClipboard()" class="copy-button">
-          Validate
+        <button
+          type="button"
+          (click)="copyEmailPreviewToClipboard()"
+          class="copy-button"
+        >
+          Copy Email preview to Clipboard
         </button>
+        <div *ngIf="emailPreviewCopySuccess()" class="email-copy-success">
+          ✓ Copied!
+        </div>
       </div>
     </form>
   </div>

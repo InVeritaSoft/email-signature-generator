@@ -32,11 +32,10 @@
     #fff 185.73%
   );
   --gradient-blue: linear-gradient(
-    163deg,
-    #006be5 29.75%,
-    #7ad0cb 95.77%,
-    #e0eeb5 127.99%,
-    #faf6af 184.3%
+    300deg,
+    #faf6af -91.29%,
+    #7ad0cb -15.73%,
+    #006be5 75.91%
   );
 }
 
