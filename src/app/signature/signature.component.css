@@ -529,6 +529,55 @@
   height: 100%;
 }
 
+/* RemixIcon styling for social icons */
+.social-icon i {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  color: inherit;
+  font-size: 24px;
+  vertical-align: middle;
+}
+
+/* Variant-specific RemixIcon colors - match the original filter effects */
+.signature-container.variant-classic .social-icon i {
+  color: #ffffff;
+}
+
+.signature-container.variant-dark .social-icon i {
+  color: #ffffff;
+}
+
+.signature-container.variant-gradient .social-icon i {
+  color: #ffffff;
+}
+
+.signature-container.variant-gradient-blue .social-icon i {
+  color: #ffffff;
+}
+
+.signature-container.variant-quadrant .social-icon i {
+  color: #ffffff;
+}
+
+.signature-container.variant-vertical .social-icon i {
+  color: #ffffff;
+}
+
+.signature-container.variant-horizontal-logo .social-icon i {
+  color: #ffffff;
+}
+
+.signature-container.variant-vertical-simple .social-icon i {
+  color: #000000;
+}
+
+.signature-container.variant-horizontal-simple .social-icon i {
+  color: #000000;
+}
+
 .website-link-container {
   box-sizing: border-box;
   display: flex;

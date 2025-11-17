@@ -37,9 +37,15 @@
                 "glob": "background.js",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/remixicon/fonts",
+                "output": "/fonts"
               }
             ],
             "styles": [
+              "node_modules/remixicon/fonts/remixicon.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -113,6 +119,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/remixicon/fonts/remixicon.css",
               "src/styles.css"
             ],
             "scripts": []

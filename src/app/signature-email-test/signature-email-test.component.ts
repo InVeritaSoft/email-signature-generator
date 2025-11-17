@@ -122,11 +122,20 @@ export class SignatureEmailTestComponent implements OnInit {
 
   async copyToClipboard(content: string): Promise<void> {
     try {
-      await navigator.clipboard.writeText(content);
+      // Convert all images to base64 for email compatibility
+      const contentWithBase64 = await this.store.convertImagesToBase64(content);
+      await navigator.clipboard.writeText(contentWithBase64);
       alert('Copied to clipboard!');
     } catch (err) {
       console.error('Failed to copy:', err);
-      alert('Failed to copy to clipboard');
+      // Fallback: try copying without base64 conversion
+      try {
+        await navigator.clipboard.writeText(content);
+        alert('Copied to clipboard!');
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+        alert('Failed to copy to clipboard');
+      }
     }
   }
 }

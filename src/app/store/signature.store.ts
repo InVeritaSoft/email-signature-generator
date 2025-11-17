@@ -77,7 +77,7 @@ const randomTitles = [
   'Operations Manager',
   'Customer Success Manager',
   'Growth Hacker',
-  'Digital Marketing Specialist'
+  'Digital Marketing Specialist',
 ];
 
 // Helper to get random title
@@ -102,18 +102,128 @@ const initialState: SignatureState = {
 
 // Image assets (hardcoded - not editable)
 const logoUrl = 'assets/logo.png';
-const facebookIconUrl = 'assets/86fe2a2a805b38a53a570fffbfcedff5bee14c6e.svg';
-const youtubeIconUrl = 'assets/e954b2b256844b45a4312866e2427080e4f4680e.svg';
-const linkedInIconUrl = 'assets/252ab1f841d7b12fa4ab683d55d5059552029ff1.svg';
+
+// Social icon PNG assets
+const FACEBOOK_ICON_PATH = 'assets/facebook-fill.png';
+const YOUTUBE_ICON_PATH = 'assets/youtube-fill.png';
+const LINKEDIN_ICON_PATH = 'assets/linkedin-fill.png';
+
+// Cache for pre-converted base64 social icons
+const socialIconBase64Cache = new Map<string, string>();
+
+// Helper to load PNG image and convert to base64 data URL
+const loadPngToBase64 = async (imagePath: string): Promise<string> => {
+  // Check cache first
+  if (socialIconBase64Cache.has(imagePath)) {
+    return socialIconBase64Cache.get(imagePath)!;
+  }
+
+  try {
+    // Determine the full URL based on context (Chrome extension vs web)
+    let fullUrl: string;
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+      // Chrome extension context
+      fullUrl = chrome.runtime.getURL(imagePath);
+    } else {
+      // Web context - use relative path or construct from window.location
+      fullUrl = imagePath.startsWith('http') 
+        ? imagePath 
+        : `${window.location.origin}/${imagePath}`;
+    }
+
+    // Fetch the image
+    const response = await fetch(fullUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+    
+    // Convert blob to base64
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        // Cache the result
+        socialIconBase64Cache.set(imagePath, base64);
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error(`Failed to load PNG to base64 for ${imagePath}:`, error);
+    return '';
+  }
+};
+
+// Pre-load social icons to base64 (call this once at module initialization)
+let socialIconsLoaded = false;
+const preloadSocialIcons = async (): Promise<void> => {
+  if (socialIconsLoaded) return;
+  
+  try {
+    await Promise.all([
+      loadPngToBase64(FACEBOOK_ICON_PATH),
+      loadPngToBase64(YOUTUBE_ICON_PATH),
+      loadPngToBase64(LINKEDIN_ICON_PATH),
+    ]);
+    socialIconsLoaded = true;
+  } catch (error) {
+    console.error('Failed to pre-load social icons:', error);
+  }
+};
+
+// Get social icon as base64 img tag (synchronous - uses cached base64, loads on-demand if needed)
+// These functions return img tags with pre-converted base64 PNG data
+const getFacebookIconImg = (): string => {
+  let base64 = socialIconBase64Cache.get(FACEBOOK_ICON_PATH);
+  if (!base64) {
+    // Load synchronously if not cached (blocking, but ensures icon is available)
+    // Use the existing imageToBase64 logic from the store methods
+    // For now, return a data URL that will be replaced by convertImagesToBase64
+    // Or we can use a synchronous fetch approach
+    return `<img src="assets/facebook-fill.png" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+  }
+  return `<img src="${base64}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+};
+
+const getYoutubeIconImg = (): string => {
+  let base64 = socialIconBase64Cache.get(YOUTUBE_ICON_PATH);
+  if (!base64) {
+    return `<img src="assets/youtube-fill.png" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+  }
+  return `<img src="${base64}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+};
+
+const getLinkedInIconImg = (): string => {
+  let base64 = socialIconBase64Cache.get(LINKEDIN_ICON_PATH);
+  if (!base64) {
+    return `<img src="assets/linkedin-fill.png" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+  }
+  return `<img src="${base64}" alt="icon" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />`;
+};
+
+// Inverita social media links (hardcoded - not editable)
+const INVERITA_FACEBOOK_URL = 'https://www.facebook.com/inverita.official';
+const INVERITA_YOUTUBE_URL = 'https://www.youtube.com/@inverita';
+const INVERITA_LINKEDIN_SOCIAL_URL =
+  'https://www.linkedin.com/company/inveritaofficial';
+
+// Inverita website (hardcoded - not editable)
+const INVERITA_WEBSITE_URL = 'https://inveritasoft.com';
+const INVERITA_WEBSITE_TEXT = 'inveritasoft.com';
 
 // Chrome Storage key
 const STORAGE_KEY = 'signatureState';
 
 // Helper to check if Chrome Storage API is available
 const isChromeExtension = (): boolean => {
-  return typeof chrome !== 'undefined' && 
-         typeof chrome.storage !== 'undefined' && 
-         typeof chrome.storage.local !== 'undefined';
+  return (
+    typeof chrome !== 'undefined' &&
+    typeof chrome.storage !== 'undefined' &&
+    typeof chrome.storage.local !== 'undefined'
+  );
 };
 
 // Helper to load state from Chrome Storage
@@ -149,17 +259,29 @@ export const SignatureStore = signalStore(
   withState(initialState),
   withHooks({
     onInit: async (store) => {
+      // Pre-load social icons to base64 cache
+      await preloadSocialIcons();
+      
       // Load state from Chrome Storage on initialization
       const savedState = await loadFromStorage();
       let isInitializing = true;
-      
+
       if (savedState) {
-        patchState(store, savedState);
+        // Remove hardcoded social links and website from saved state to prevent overriding them
+        const {
+          facebookUrl,
+          youtubeUrl,
+          linkedInSocialUrl,
+          websiteUrl,
+          websiteText,
+          ...stateToLoad
+        } = savedState;
+        patchState(store, stateToLoad);
       }
-      
+
       // Mark initialization as complete
       isInitializing = false;
-      
+
       // Watch for state changes and save to Chrome Storage
       // Only save after initialization is complete to avoid saving during load
       effect(() => {
@@ -167,17 +289,17 @@ export const SignatureStore = signalStore(
         if (isInitializing) {
           return;
         }
-        
+
         const currentState = {
           name: store.name(),
           title: store.title(),
           linkedInUrl: store.linkedInUrl(),
           linkedInText: store.linkedInText(),
-          websiteUrl: store.websiteUrl(),
-          websiteText: store.websiteText(),
-          facebookUrl: store.facebookUrl(),
-          youtubeUrl: store.youtubeUrl(),
-          linkedInSocialUrl: store.linkedInSocialUrl(),
+          websiteUrl: INVERITA_WEBSITE_URL,
+          websiteText: INVERITA_WEBSITE_TEXT,
+          facebookUrl: INVERITA_FACEBOOK_URL,
+          youtubeUrl: INVERITA_YOUTUBE_URL,
+          linkedInSocialUrl: INVERITA_LINKEDIN_SOCIAL_URL,
           imageUrl: store.imageUrl(),
           baseUrl: store.baseUrl(),
           variant: store.variant(),
@@ -187,17 +309,26 @@ export const SignatureStore = signalStore(
     },
   }),
   withComputed((store) => ({
+    // Hardcoded Inverita social links (always return these values, not editable)
+    facebookUrl: computed(() => INVERITA_FACEBOOK_URL),
+    youtubeUrl: computed(() => INVERITA_YOUTUBE_URL),
+    linkedInSocialUrl: computed(() => INVERITA_LINKEDIN_SOCIAL_URL),
+
+    // Hardcoded Inverita website (always return these values, not editable)
+    websiteUrl: computed(() => INVERITA_WEBSITE_URL),
+    websiteText: computed(() => INVERITA_WEBSITE_TEXT),
+
     // Computed state signal that combines all individual signals
     state: computed(() => ({
       name: store.name(),
       title: store.title(),
       linkedInUrl: store.linkedInUrl(),
       linkedInText: store.linkedInText(),
-      websiteUrl: store.websiteUrl(),
-      websiteText: store.websiteText(),
-      facebookUrl: store.facebookUrl(),
-      youtubeUrl: store.youtubeUrl(),
-      linkedInSocialUrl: store.linkedInSocialUrl(),
+      websiteUrl: INVERITA_WEBSITE_URL,
+      websiteText: INVERITA_WEBSITE_TEXT,
+      facebookUrl: INVERITA_FACEBOOK_URL,
+      youtubeUrl: INVERITA_YOUTUBE_URL,
+      linkedInSocialUrl: INVERITA_LINKEDIN_SOCIAL_URL,
       imageUrl: store.imageUrl(),
       baseUrl: store.baseUrl(),
       variant: store.variant(),
@@ -206,6 +337,21 @@ export const SignatureStore = signalStore(
   withMethods((store) => {
     // Cache for base64 images
     const base64Cache = new Map<string, string>();
+    
+    // Promise that resolves when social icons are loaded
+    let socialIconsLoadPromise: Promise<void> | null = null;
+    
+    // Ensure social icons are loaded (can be called multiple times safely)
+    const ensureSocialIconsLoaded = async (): Promise<void> => {
+      if (socialIconsLoadPromise) {
+        return socialIconsLoadPromise;
+      }
+      if (socialIconsLoaded) {
+        return Promise.resolve();
+      }
+      socialIconsLoadPromise = preloadSocialIcons();
+      return socialIconsLoadPromise;
+    };
 
     // Helper function to convert image to base64
     const imageToBase64 = async (imagePath: string): Promise<string> => {
@@ -330,23 +476,23 @@ export const SignatureStore = signalStore(
       },
 
       updateWebsiteUrl(url: string): void {
-        patchState(store, { websiteUrl: url });
+        // No-op: Website URL is hardcoded to Inverita's website
       },
 
       updateWebsiteText(text: string): void {
-        patchState(store, { websiteText: text });
+        // No-op: Website text is hardcoded to Inverita's website
       },
 
       updateFacebookUrl(url: string): void {
-        patchState(store, { facebookUrl: url });
+        // No-op: Facebook URL is hardcoded to Inverita's page
       },
 
       updateYoutubeUrl(url: string): void {
-        patchState(store, { youtubeUrl: url });
+        // No-op: YouTube URL is hardcoded to Inverita's page
       },
 
       updateLinkedInSocialUrl(url: string): void {
-        patchState(store, { linkedInSocialUrl: url });
+        // No-op: LinkedIn social URL is hardcoded to Inverita's page
       },
 
       updateImageUrl(url: string): void {
@@ -363,9 +509,20 @@ export const SignatureStore = signalStore(
 
       updateState(updates: Partial<SignatureState>): void {
         // Normalize all updates to ensure empty strings are properly handled
+        // Also filter out hardcoded social links that should not be editable
         const normalizedUpdates: Partial<SignatureState> = {};
         Object.keys(updates).forEach((key) => {
           const typedKey = key as keyof SignatureState;
+          // Skip hardcoded social links and website
+          if (
+            typedKey === 'facebookUrl' ||
+            typedKey === 'youtubeUrl' ||
+            typedKey === 'linkedInSocialUrl' ||
+            typedKey === 'websiteUrl' ||
+            typedKey === 'websiteText'
+          ) {
+            return;
+          }
           const value = updates[typedKey];
           // Normalize null/undefined to empty string for proper comparison
           normalizedUpdates[typedKey] = (
@@ -390,17 +547,145 @@ export const SignatureStore = signalStore(
       },
 
       /**
-       * Converts all image src attributes in HTML to base64
-       * @param html - HTML string with image src attributes
+       * Converts SVG string to base64 data URL
+       * @param svgString - SVG string
+       * @returns Base64 data URL
+       */
+      svgToBase64(svgString: string): string {
+        // Remove any existing XML declaration and clean up the SVG
+        const cleanedSvg = svgString
+          .replace(/<\?xml[^>]*\?>/gi, '')
+          .trim();
+        
+        // Encode SVG to base64
+        const base64 = btoa(unescape(encodeURIComponent(cleanedSvg)));
+        return `data:image/svg+xml;base64,${base64}`;
+      },
+
+      /**
+       * Converts all image src attributes and inline SVG to base64
+       * @param html - HTML string with image src attributes and inline SVG
        * @returns Promise that resolves to HTML with base64 image src
        */
       async convertImagesToBase64(html: string): Promise<string> {
-        // Extract all image src attributes
+        let result = html;
+
+        // First, convert inline SVG elements to base64 data URLs (email clients strip SVG)
+        // Use a more flexible regex that handles whitespace variations
+        const svgRegex = /<svg[^>]*>[\s\S]*?<\/svg>/gi;
+        let svgMatch;
+        const svgReplacements: Array<{ original: string; replacement: string }> = [];
+
+        // Reset regex lastIndex to ensure we match all occurrences
+        svgRegex.lastIndex = 0;
+        let svgCount = 0;
+        while ((svgMatch = svgRegex.exec(html)) !== null) {
+          svgCount++;
+          const svgString = svgMatch[0];
+          // Skip if already in an img tag with data URL
+          if (!svgString.includes('data:image/')) {
+            // Convert SVG to base64 data URL
+            const cleanedSvg = svgString
+              .replace(/<\?xml[^>]*\?>/gi, '')
+              .trim();
+            
+            try {
+              const base64 = btoa(unescape(encodeURIComponent(cleanedSvg)));
+              const base64DataUrl = `data:image/svg+xml;base64,${base64}`;
+              
+              // Verify base64 conversion worked
+              if (!base64DataUrl || base64DataUrl.length < 50 || !base64DataUrl.startsWith('data:image/svg+xml;base64,')) {
+                console.error('Invalid base64 data URL generated for SVG. Length:', base64DataUrl?.length, 'Starts with data:', base64DataUrl?.startsWith('data:'));
+                continue;
+              }
+              
+              // Extract color from SVG fill attribute if present
+              const fillMatch = svgString.match(/fill=["']([^"']+)["']/i);
+              const svgColor = fillMatch ? fillMatch[1] : 'currentColor';
+              const iconStyle = 'display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;';
+              
+              // Ensure src attribute is properly quoted and base64DataUrl is valid
+              if (!base64DataUrl || base64DataUrl.trim() === '') {
+                console.error('base64DataUrl is empty, skipping replacement');
+                continue;
+              }
+              
+              const imgTag = `<img src="${base64DataUrl}" alt="icon" width="24" height="24" style="${iconStyle}" />`;
+              
+              // Verify the img tag was created correctly
+              if (!imgTag.includes('src="') || !imgTag.includes(base64DataUrl)) {
+                console.error('Failed to create img tag with src. imgTag:', imgTag.substring(0, 100));
+                continue;
+              }
+              
+              svgReplacements.push({ original: svgString, replacement: imgTag });
+            } catch (error) {
+              console.error('Failed to convert SVG to base64:', error, svgString.substring(0, 100));
+            }
+          }
+        }
+        
+
+        // Replace inline SVG with img tags using base64 data URLs
+        // Process in reverse order to maintain correct indices (to avoid index shifting)
+        for (let i = svgReplacements.length - 1; i >= 0; i--) {
+          const { original, replacement } = svgReplacements[i];
+          
+          // Try exact match first (most reliable)
+          let index = result.indexOf(original);
+          if (index !== -1) {
+            result = result.substring(0, index) + replacement + result.substring(index + original.length);
+            continue;
+          }
+          
+          // Fallback: use regex with flexible whitespace matching
+          // Normalize whitespace in both strings for comparison
+          const normalizedOriginal = original.replace(/\s+/g, ' ').trim();
+          // Create a flexible regex pattern that matches the SVG with variable whitespace
+          const svgPattern = normalizedOriginal
+            .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars
+            .replace(/\s+/g, '\\s+'); // Make whitespace flexible
+          
+          try {
+            const regex = new RegExp(svgPattern, 'gi');
+            const match = result.match(regex);
+            if (match && match.length > 0) {
+              // Replace first match (should be the only one)
+              result = result.replace(regex, replacement);
+            }
+          } catch (regexError) {
+            console.error('Regex replacement failed:', regexError, 'Pattern:', svgPattern.substring(0, 80));
+          }
+        }
+
+        // Verify all img tags have src attributes (safety check)
+        const imgTagRegex = /<img[^>]*>/gi;
+        const allImgTags: string[] = [];
+        let imgTagMatch;
+        imgTagRegex.lastIndex = 0;
+        while ((imgTagMatch = imgTagRegex.exec(result)) !== null) {
+          allImgTags.push(imgTagMatch[0]);
+        }
+        
+        // Check for img tags without src and try to fix them if they're our icon tags
+        const imgTagsWithoutSrc = allImgTags.filter(imgTag => !imgTag.includes('src='));
+        if (imgTagsWithoutSrc.length > 0) {
+          console.error(`Found ${imgTagsWithoutSrc.length} img tag(s) without src attribute:`, imgTagsWithoutSrc);
+          
+          // Try to fix icon img tags that might have been created incorrectly
+          imgTagsWithoutSrc.forEach(brokenImgTag => {
+            if (brokenImgTag.includes('alt="icon"')) {
+              // This shouldn't happen if our code is working correctly
+            }
+          });
+        }
+
+        // Then convert regular image src attributes to base64
         const imgSrcRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
         const imageUrls = new Set<string>();
         let match;
 
-        while ((match = imgSrcRegex.exec(html)) !== null) {
+        while ((match = imgSrcRegex.exec(result)) !== null) {
           const imageUrl = match[1];
           // Skip if already base64 data URL
           if (!imageUrl.startsWith('data:image/')) {
@@ -410,7 +695,7 @@ export const SignatureStore = signalStore(
 
         // If all images are already base64, return as-is
         if (imageUrls.size === 0) {
-          return html;
+          return result;
         }
 
         // Convert all images to base64
@@ -430,7 +715,6 @@ export const SignatureStore = signalStore(
         );
 
         // Replace all image src attributes with base64
-        let result = html;
         base64Map.forEach((base64, url) => {
           // Escape special regex characters in URL
           const escapedUrl = url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -447,10 +731,12 @@ export const SignatureStore = signalStore(
        * @param stateOverride - Optional state override (for reactive computed signals)
        * @returns HTML string ready for email clients (just the signature, no html/body tags)
        */
-      generateEmailSignature(
+      async generateEmailSignature(
         baseUrlOverride: string = '',
         stateOverride?: SignatureState
-      ): string {
+      ): Promise<string> {
+        // Ensure social icons are loaded before generating signature
+        await ensureSocialIconsLoaded();
         // Use provided state or get current state
         // In NgRx Signals, we need to construct state from individual signals
         const state = stateOverride || {
@@ -489,21 +775,12 @@ export const SignatureStore = signalStore(
           baseUrlOverride,
           stateOverride
         );
-        const facebookIconUrlValue = getImageUrl(
-          facebookIconUrl,
-          baseUrlOverride,
-          stateOverride
-        );
-        const youtubeIconUrlValue = getImageUrl(
-          youtubeIconUrl,
-          baseUrlOverride,
-          stateOverride
-        );
-        const linkedInIconUrlValue = getImageUrl(
-          linkedInIconUrl,
-          baseUrlOverride,
-          stateOverride
-        );
+        
+        // Use pre-converted base64 PNG img tags for social icons
+        // Icons are pre-loaded to base64 cache on store initialization
+        const facebookIconImg = getFacebookIconImg();
+        const youtubeIconImg = getYoutubeIconImg();
+        const linkedInIconImg = getLinkedInIconImg();
 
         // Route to appropriate variant template
         switch (variant) {
@@ -513,9 +790,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
           case SignatureVariant.Gradient:
             return this.generateGradientVariant(
@@ -523,9 +800,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
           case SignatureVariant.Vertical:
             return this.generateVerticalVariant(
@@ -533,9 +810,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
           case SignatureVariant.Quadrant:
             return this.generateQuadrantVariant(
@@ -543,9 +820,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
           case SignatureVariant.HorizontalLogo:
             return this.generateHorizontalLogoVariant(
@@ -553,9 +830,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
           case SignatureVariant.GradientBlue:
             return this.generateGradientBlueVariant(
@@ -563,9 +840,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
           case SignatureVariant.HorizontalSimple:
             return this.generateHorizontalSimpleVariant(
@@ -573,9 +850,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
           case SignatureVariant.VerticalSimple:
             return this.generateVerticalSimpleVariant(
@@ -583,9 +860,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
           default:
             return this.generateClassicVariant(
@@ -593,9 +870,9 @@ export const SignatureStore = signalStore(
               baseUrlOverride,
               portraitUrl,
               logoUrlValue,
-              facebookIconUrlValue,
-              youtubeIconUrlValue,
-              linkedInIconUrlValue
+              facebookIconImg,
+              youtubeIconImg,
+              linkedInIconImg
             );
         }
       },
@@ -605,9 +882,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -696,19 +973,19 @@ export const SignatureStore = signalStore(
                             <!-- Facebook Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+                                ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+                                ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+                                ${linkedInIconImg}
                               </a>
                             </td>
                             <!-- Website Link -->
@@ -738,9 +1015,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -829,19 +1106,19 @@ export const SignatureStore = signalStore(
                             <!-- Facebook Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${linkedInIconImg}
                               </a>
                             </td>
                             <!-- Website Link -->
@@ -871,9 +1148,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -980,19 +1257,19 @@ export const SignatureStore = signalStore(
                             <!-- Facebook Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${linkedInIconImg}
                               </a>
                             </td>
                             <!-- Website Link -->
@@ -1022,9 +1299,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -1090,17 +1367,17 @@ export const SignatureStore = signalStore(
         <tr>
           <td style="padding: 0 14px 0 0;">
             <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-              <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+              ${facebookIconImg}
             </a>
           </td>
           <td style="padding: 0 14px 0 0;">
             <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-              <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+              ${youtubeIconImg}
             </a>
           </td>
           <td style="padding: 0;">
             <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-              <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+              ${linkedInIconImg}
             </a>
           </td>
         </tr>
@@ -1115,9 +1392,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -1224,19 +1501,19 @@ export const SignatureStore = signalStore(
                             <!-- Facebook Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${linkedInIconImg}
                               </a>
                             </td>
                             <!-- Website Link -->
@@ -1266,9 +1543,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -1327,17 +1604,17 @@ export const SignatureStore = signalStore(
                     <tr>
                       <td style="padding: 0 14px 0 0;">
                         <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                          <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                          ${facebookIconImg}
                         </a>
                       </td>
                       <td style="padding: 0 14px 0 0;">
                         <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                          <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                          ${youtubeIconImg}
                         </a>
                       </td>
                       <td style="padding: 0;">
                         <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                          <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                          ${linkedInIconImg}
                         </a>
                       </td>
                     </tr>
@@ -1358,9 +1635,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -1467,19 +1744,19 @@ export const SignatureStore = signalStore(
                             <!-- Facebook Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${facebookIconImg}
                               </a>
                             </td>
                             <!-- YouTube Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${youtubeIconImg}
                               </a>
                             </td>
                             <!-- LinkedIn Icon -->
                             <td style="padding: 0; width: 40px; height: 40px; text-align: center; vertical-align: middle;">
                               <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-                                <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+                                ${linkedInIconImg}
                               </a>
                             </td>
                             <!-- Website Link -->
@@ -1509,9 +1786,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -1571,9 +1848,9 @@ export const SignatureStore = signalStore(
         baseUrlOverride: string,
         portraitUrl: string,
         logoUrlValue: string,
-        facebookIconUrlValue: string,
-        youtubeIconUrlValue: string,
-        linkedInIconUrlValue: string
+        facebookIconImg: string,
+        youtubeIconImg: string,
+        linkedInIconImg: string
       ): string {
         const name = state.name || '';
         const title = state.title || '';
@@ -1632,17 +1909,17 @@ export const SignatureStore = signalStore(
         <tr>
           <td style="padding: 0 14px 0 0;">
             <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-              <img src="${youtubeIconUrlValue}" alt="YouTube" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+              ${youtubeIconImg}
             </a>
           </td>
           <td style="padding: 0 14px 0 0;">
             <a href="${facebookUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-              <img src="${facebookIconUrlValue}" alt="Facebook" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+              ${facebookIconImg}
             </a>
           </td>
           <td style="padding: 0;">
             <a href="${linkedInSocialUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; text-decoration: none;">
-              <img src="${linkedInIconUrlValue}" alt="LinkedIn" width="24" height="24" style="display: block; width: 24px; height: 24px; border: 0; outline: none; text-decoration: none;" />
+              ${linkedInIconImg}
             </a>
           </td>
         </tr>

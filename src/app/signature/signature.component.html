@@ -113,14 +113,12 @@
                   data-node-id="136:171"
                   target="_blank"
                   rel="noopener noreferrer"
-                  [class.hidden]="!store.facebookUrl()"
                 >
                   <div class="social-icon" data-node-id="136:172">
-                    <img
-                      [src]="facebookIconUrl"
-                      alt="Facebook"
-                      class="icon-image"
-                    />
+                    <i
+                      class="ri-facebook-fill"
+                      style="font-size: 24px; color: inherit"
+                    ></i>
                   </div>
                 </a>
                 <a
@@ -130,14 +128,12 @@
                   data-node-id="136:174"
                   target="_blank"
                   rel="noopener noreferrer"
-                  [class.hidden]="!store.youtubeUrl()"
                 >
                   <div class="social-icon" data-node-id="136:175">
-                    <img
-                      [src]="youtubeIconUrl"
-                      alt="YouTube"
-                      class="icon-image"
-                    />
+                    <i
+                      class="ri-youtube-fill"
+                      style="font-size: 24px; color: inherit"
+                    ></i>
                   </div>
                 </a>
                 <a
@@ -147,22 +143,16 @@
                   data-node-id="136:177"
                   target="_blank"
                   rel="noopener noreferrer"
-                  [class.hidden]="!store.linkedInSocialUrl()"
                 >
                   <div class="social-icon" data-node-id="136:178">
-                    <img
-                      [src]="linkedInIconUrl"
-                      alt="LinkedIn"
-                      class="icon-image"
-                    />
+                    <i
+                      class="ri-linkedin-fill"
+                      style="font-size: 24px; color: inherit"
+                    ></i>
                   </div>
                 </a>
               </div>
-              <div
-                class="website-link-container"
-                data-node-id="136:180"
-                [class.hidden]="!store.websiteUrl()"
-              >
+              <div class="website-link-container" data-node-id="136:180">
                 <div class="website-link-wrapper" data-node-id="136:181">
                   <a
                     [href]="store.websiteUrl()"
@@ -361,117 +351,6 @@
           class="form-control"
           (input)="syncFormToStore($event)"
         />
-      </div>
-
-      <div class="form-group">
-        <label for="websiteUrl">Website URL</label>
-        <input
-          id="websiteUrl"
-          type="url"
-          formControlName="websiteUrl"
-          class="form-control"
-          placeholder="https://example.com"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('websiteUrl')?.invalid &&
-            (signatureForm.get('websiteUrl')?.touched || formSubmitted())
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('websiteUrl')?.invalid &&
-            (signatureForm.get('websiteUrl')?.touched || formSubmitted())
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="websiteText">Website Display Text</label>
-        <input
-          id="websiteText"
-          type="text"
-          formControlName="websiteText"
-          class="form-control"
-          (input)="syncFormToStore($event)"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="facebookUrl">Facebook URL</label>
-        <input
-          id="facebookUrl"
-          type="url"
-          formControlName="facebookUrl"
-          class="form-control"
-          placeholder="https://www.facebook.com/username"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('facebookUrl')?.invalid &&
-            (signatureForm.get('facebookUrl')?.touched || formSubmitted())
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('facebookUrl')?.invalid &&
-            (signatureForm.get('facebookUrl')?.touched || formSubmitted())
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="youtubeUrl">YouTube URL</label>
-        <input
-          id="youtubeUrl"
-          type="url"
-          formControlName="youtubeUrl"
-          class="form-control"
-          placeholder="https://www.youtube.com/@username"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('youtubeUrl')?.invalid &&
-            (signatureForm.get('youtubeUrl')?.touched || formSubmitted())
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('youtubeUrl')?.invalid &&
-            (signatureForm.get('youtubeUrl')?.touched || formSubmitted())
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="linkedInSocialUrl">LinkedIn Company URL</label>
-        <input
-          id="linkedInSocialUrl"
-          type="url"
-          formControlName="linkedInSocialUrl"
-          class="form-control"
-          placeholder="https://www.linkedin.com/company/companyname"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('linkedInSocialUrl')?.invalid &&
-            (signatureForm.get('linkedInSocialUrl')?.touched || formSubmitted())
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('linkedInSocialUrl')?.invalid &&
-            (signatureForm.get('linkedInSocialUrl')?.touched || formSubmitted())
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
       </div>
 
       <div class="form-actions">

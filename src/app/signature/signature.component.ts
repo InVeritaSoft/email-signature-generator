@@ -26,12 +26,6 @@ import { SignatureStore, SignatureVariant } from '../store/signature.store';
 export class SignatureComponent implements OnInit {
   // Image assets (hardcoded - not editable)
   readonly logoUrl = 'assets/logo.png';
-  readonly facebookIconUrl =
-    'assets/86fe2a2a805b38a53a570fffbfcedff5bee14c6e.svg';
-  readonly youtubeIconUrl =
-    'assets/e954b2b256844b45a4312866e2427080e4f4680e.svg';
-  readonly linkedInIconUrl =
-    'assets/252ab1f841d7b12fa4ab683d55d5059552029ff1.svg';
 
   // Inject store using NgRx pattern
   readonly store = inject(SignatureStore);
@@ -54,17 +48,13 @@ export class SignatureComponent implements OnInit {
     );
 
     // Initialize form with store values
+    // Note: Social links and website (facebookUrl, youtubeUrl, linkedInSocialUrl, websiteUrl, websiteText) are hardcoded and not editable
     const state = this.store.state();
     this.signatureForm = this.fb.group({
       name: [state.name, [Validators.required]],
       title: [state.title, [Validators.required]],
       linkedInUrl: [state.linkedInUrl, [urlValidator]],
       linkedInText: [state.linkedInText],
-      websiteUrl: [state.websiteUrl, [urlValidator]],
-      websiteText: [state.websiteText],
-      facebookUrl: [state.facebookUrl, [urlValidator]],
-      youtubeUrl: [state.youtubeUrl, [urlValidator]],
-      linkedInSocialUrl: [state.linkedInSocialUrl, [urlValidator]],
       imageUrl: [state.imageUrl, [urlValidator]],
       variant: [state.variant],
     });
@@ -85,15 +75,11 @@ export class SignatureComponent implements OnInit {
     // Use effect to track store state changes and update form
     effect(() => {
       // Track all individual store signals to ensure reactivity
+      // Note: Social links and website are hardcoded and not in the form
       const name = this.store.name();
       const title = this.store.title();
       const linkedInUrl = this.store.linkedInUrl();
       const linkedInText = this.store.linkedInText();
-      const websiteUrl = this.store.websiteUrl();
-      const websiteText = this.store.websiteText();
-      const facebookUrl = this.store.facebookUrl();
-      const youtubeUrl = this.store.youtubeUrl();
-      const linkedInSocialUrl = this.store.linkedInSocialUrl();
       const imageUrl = this.store.imageUrl();
       const variant = this.store.variant();
 
@@ -104,11 +90,6 @@ export class SignatureComponent implements OnInit {
         formValue.title !== title ||
         formValue.linkedInUrl !== linkedInUrl ||
         formValue.linkedInText !== linkedInText ||
-        formValue.websiteUrl !== websiteUrl ||
-        formValue.websiteText !== websiteText ||
-        formValue.facebookUrl !== facebookUrl ||
-        formValue.youtubeUrl !== youtubeUrl ||
-        formValue.linkedInSocialUrl !== linkedInSocialUrl ||
         formValue.imageUrl !== imageUrl ||
         formValue.variant !== variant;
 
@@ -123,58 +104,83 @@ export class SignatureComponent implements OnInit {
       this.store.updateBaseUrl(this.baseUrl());
     });
 
+    // Automatically update LinkedIn text based on name
+    effect(() => {
+      const name = this.store.name();
+      if (name && name.trim()) {
+        // Extract first name (everything before the first space)
+        const firstName = name.trim().split(/\s+/)[0];
+        const autoLinkedInText = `${firstName} on LinkedIn`;
+        // Only update if different to avoid unnecessary updates
+        if (this.store.linkedInText() !== autoLinkedInText) {
+          this.store.updateLinkedInText(autoLinkedInText);
+          // Also update form if it exists
+          if (this.signatureForm.get('linkedInText')) {
+            this.signatureForm.patchValue(
+              { linkedInText: autoLinkedInText },
+              { emitEvent: false }
+            );
+          }
+        }
+      }
+    });
+
     // Effect to convert images to base64 for email preview
     effect(() => {
       // Track all individual store signals to ensure reactivity
+      // Note: Social links and website are hardcoded and always available
       const name = this.store.name();
       const title = this.store.title();
       const linkedInUrl = this.store.linkedInUrl();
       const linkedInText = this.store.linkedInText();
-      const websiteUrl = this.store.websiteUrl();
-      const websiteText = this.store.websiteText();
-      const facebookUrl = this.store.facebookUrl();
-      const youtubeUrl = this.store.youtubeUrl();
-      const linkedInSocialUrl = this.store.linkedInSocialUrl();
       const imageUrl = this.store.imageUrl();
       const variant = this.store.variant();
       const baseUrlValue = this.baseUrl();
 
-      // Generate signature
-      const signature = this.store.generateEmailSignature(baseUrlValue);
+      // Generate signature (now async - ensures icons are loaded)
+      this.store
+        .generateEmailSignature(baseUrlValue)
+        .then((signature) => {
+          // Create a hash of the signature to detect actual changes
+          // Simple hash function for string comparison
+          let hash = 0;
+          for (let i = 0; i < signature.length; i++) {
+            const char = signature.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash = hash & hash; // Convert to 32bit integer
+          }
+          const signatureHash = hash.toString();
 
-      // Create a hash of the signature to detect actual changes
-      // Simple hash function for string comparison
-      let hash = 0;
-      for (let i = 0; i < signature.length; i++) {
-        const char = signature.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash; // Convert to 32bit integer
-      }
-      const signatureHash = hash.toString();
+          // Only convert if signature actually changed and we're not already converting
+          if (
+            this.lastSignatureHash() !== signatureHash &&
+            !this.isConverting
+          ) {
+            this.lastSignatureHash.set(signatureHash);
+            this.isConverting = true;
 
-      // Only convert if signature actually changed and we're not already converting
-      if (this.lastSignatureHash() !== signatureHash && !this.isConverting) {
-        this.lastSignatureHash.set(signatureHash);
-        this.isConverting = true;
-
-        // Convert images to base64 for email preview
-        this.store
-          .convertImagesToBase64(signature)
-          .then((htmlWithBase64) => {
-            this.emailHtmlWithBase64.set(
-              this.sanitizer.bypassSecurityTrustHtml(htmlWithBase64)
-            );
-            this.isConverting = false;
-          })
-          .catch((error) => {
-            console.error('Failed to convert images to base64:', error);
-            // Fallback to original signature
-            this.emailHtmlWithBase64.set(
-              this.sanitizer.bypassSecurityTrustHtml(signature)
-            );
-            this.isConverting = false;
-          });
-      }
+            // Convert images to base64 for email preview
+            this.store
+              .convertImagesToBase64(signature)
+              .then((htmlWithBase64) => {
+                this.emailHtmlWithBase64.set(
+                  this.sanitizer.bypassSecurityTrustHtml(htmlWithBase64)
+                );
+                this.isConverting = false;
+              })
+              .catch((error) => {
+                console.error('Failed to convert images to base64:', error);
+                // Fallback to original signature
+                this.emailHtmlWithBase64.set(
+                  this.sanitizer.bypassSecurityTrustHtml(signature)
+                );
+                this.isConverting = false;
+              });
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to generate signature:', error);
+        });
     });
   }
 
@@ -198,43 +204,43 @@ export class SignatureComponent implements OnInit {
       return base64Html;
     }
 
-    // Fallback: generate signature without base64 (will be updated by effect)
-    const state = this.store.state();
-    const signature = this.store.generateEmailSignature(this.baseUrl(), state);
-    return this.sanitizer.bypassSecurityTrustHtml(signature);
+    // Fallback: return null, async signature generation handled by effect
+    return null;
   });
 
   readonly emailSignatureString = computed(() => {
     // Track all individual store signals to ensure reactivity
+    // Note: Social links and website are hardcoded and always available
     this.store.name();
     this.store.title();
     this.store.linkedInUrl();
     this.store.linkedInText();
-    this.store.websiteUrl();
-    this.store.websiteText();
-    this.store.facebookUrl();
-    this.store.youtubeUrl();
-    this.store.linkedInSocialUrl();
+    this.store.websiteUrl(); // Hardcoded Inverita website
+    this.store.websiteText(); // Hardcoded Inverita website text
+    this.store.facebookUrl(); // Hardcoded Inverita link
+    this.store.youtubeUrl(); // Hardcoded Inverita link
+    this.store.linkedInSocialUrl(); // Hardcoded Inverita link
     this.store.imageUrl();
     this.store.variant();
-    const baseUrlValue = this.baseUrl();
+    this.baseUrl();
 
-    // Get current state and pass to generation method
-    const state = this.store.state();
-    return this.store.generateEmailSignature(baseUrlValue, state);
+    // Signature generation is now async - return empty string
+    // Actual signature is handled by the effect and stored in emailHtmlWithBase64
+    return '';
   });
 
   readonly emailHtmlString = computed(() => {
     // Track all individual store signals to ensure reactivity
+    // Note: Social links and website are hardcoded and always available
     this.store.name();
     this.store.title();
     this.store.linkedInUrl();
     this.store.linkedInText();
-    this.store.websiteUrl();
-    this.store.websiteText();
-    this.store.facebookUrl();
-    this.store.youtubeUrl();
-    this.store.linkedInSocialUrl();
+    this.store.websiteUrl(); // Hardcoded Inverita website
+    this.store.websiteText(); // Hardcoded Inverita website text
+    this.store.facebookUrl(); // Hardcoded Inverita link
+    this.store.youtubeUrl(); // Hardcoded Inverita link
+    this.store.linkedInSocialUrl(); // Hardcoded Inverita link
     this.store.imageUrl();
     this.store.variant();
     const baseUrlValue = this.baseUrl();
@@ -277,8 +283,8 @@ export class SignatureComponent implements OnInit {
    * @param baseUrl - Base URL for images (e.g., 'https://yourdomain.com' or 'https://cdn.yourdomain.com')
    * @returns HTML string ready for email clients (just the signature, no html/body tags)
    */
-  generateEmailSignature(baseUrl: string = ''): string {
-    return this.store.generateEmailSignature(baseUrl);
+  async generateEmailSignature(baseUrl: string = ''): Promise<string> {
+    return await this.store.generateEmailSignature(baseUrl);
   }
 
   /**
@@ -296,9 +302,9 @@ export class SignatureComponent implements OnInit {
   async copyToClipboard(): Promise<void> {
     // Mark form as submitted to show validation errors
     this.formSubmitted.set(true);
-    
+
     // Mark all form controls as touched to trigger validation display
-    Object.keys(this.signatureForm.controls).forEach(key => {
+    Object.keys(this.signatureForm.controls).forEach((key) => {
       this.signatureForm.get(key)?.markAsTouched();
     });
 
@@ -308,8 +314,12 @@ export class SignatureComponent implements OnInit {
     }
 
     try {
-      const html = this.generateEmailSignature();
-      await navigator.clipboard.writeText(html);
+      // Generate signature and convert all images to base64 for email compatibility
+      // Note: Social icons are now inline SVG, so they don't need base64 conversion
+      const html = await this.generateEmailSignature();
+      const htmlWithBase64 = await this.store.convertImagesToBase64(html);
+
+      await navigator.clipboard.writeText(htmlWithBase64);
       this.copySuccess.set(true);
       setTimeout(() => {
         this.copySuccess.set(false);
@@ -317,22 +327,46 @@ export class SignatureComponent implements OnInit {
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
       // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = this.generateEmailSignature();
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.select();
       try {
-        document.execCommand('copy');
-        this.copySuccess.set(true);
-        setTimeout(() => {
-          this.copySuccess.set(false);
-        }, 2000);
-      } catch (fallbackErr) {
-        console.error('Fallback copy failed:', fallbackErr);
+        const html = await this.generateEmailSignature();
+        const htmlWithBase64 = await this.store.convertImagesToBase64(html);
+        const textArea = document.createElement('textarea');
+        textArea.value = htmlWithBase64;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          this.copySuccess.set(true);
+          setTimeout(() => {
+            this.copySuccess.set(false);
+          }, 2000);
+        } catch (fallbackErr) {
+          console.error('Fallback copy failed:', fallbackErr);
+        }
+        document.body.removeChild(textArea);
+      } catch (conversionErr) {
+        console.error('Failed to convert images to base64:', conversionErr);
+        // Final fallback: copy without base64 conversion
+        const textArea = document.createElement('textarea');
+        const html = await this.generateEmailSignature();
+        textArea.value = html;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          this.copySuccess.set(true);
+          setTimeout(() => {
+            this.copySuccess.set(false);
+          }, 2000);
+        } catch (finalErr) {
+          console.error('Final fallback copy failed:', finalErr);
+        }
+        document.body.removeChild(textArea);
       }
-      document.body.removeChild(textArea);
     }
   }
 
@@ -354,22 +388,17 @@ export class SignatureComponent implements OnInit {
    */
   async copyEmailPreviewToClipboard(): Promise<void> {
     try {
-      // Get the rendered HTML from the email preview container
-      const previewContainer = document.querySelector('.email-preview-container');
-      if (!previewContainer) {
-        console.error('Email preview container not found');
-        return;
-      }
+      // Use the generated email signature string and convert all images to base64
+      // This ensures all icons and images are embedded and work in email clients
+      const html = await this.generateEmailSignature();
+      const htmlWithBase64 = await this.store.convertImagesToBase64(html);
 
-      // Get the innerHTML which contains the rendered signature
-      const renderedHtml = previewContainer.innerHTML;
-      
       // Copy as HTML to clipboard (preserves formatting)
       const clipboardItem = new ClipboardItem({
-        'text/html': new Blob([renderedHtml], { type: 'text/html' }),
-        'text/plain': new Blob([renderedHtml], { type: 'text/plain' })
+        'text/html': new Blob([htmlWithBase64], { type: 'text/html' }),
+        'text/plain': new Blob([htmlWithBase64], { type: 'text/plain' }),
       });
-      
+
       await navigator.clipboard.write([clipboardItem]);
       this.emailPreviewCopySuccess.set(true);
       setTimeout(() => {
@@ -377,24 +406,23 @@ export class SignatureComponent implements OnInit {
       }, 2000);
     } catch (err) {
       console.error('Failed to copy email preview to clipboard:', err);
-      // Fallback: try copying as plain text HTML
+      // Fallback: try copying as plain text HTML with base64 conversion
       try {
-        const previewContainer = document.querySelector('.email-preview-container');
-        if (previewContainer) {
-          const renderedHtml = previewContainer.innerHTML;
-          await navigator.clipboard.writeText(renderedHtml);
-          this.emailPreviewCopySuccess.set(true);
-          setTimeout(() => {
-            this.emailPreviewCopySuccess.set(false);
-          }, 2000);
-        }
+        const html = await this.generateEmailSignature();
+        const htmlWithBase64 = await this.store.convertImagesToBase64(html);
+        await navigator.clipboard.writeText(htmlWithBase64);
+        this.emailPreviewCopySuccess.set(true);
+        setTimeout(() => {
+          this.emailPreviewCopySuccess.set(false);
+        }, 2000);
       } catch (fallbackErr) {
         console.error('Fallback copy failed:', fallbackErr);
         // Final fallback using execCommand
-        const previewContainer = document.querySelector('.email-preview-container');
-        if (previewContainer) {
+        try {
+          const html = await this.generateEmailSignature();
+          const htmlWithBase64 = await this.store.convertImagesToBase64(html);
           const textArea = document.createElement('textarea');
-          textArea.value = previewContainer.innerHTML;
+          textArea.value = htmlWithBase64;
           textArea.style.position = 'fixed';
           textArea.style.left = '-999999px';
           document.body.appendChild(textArea);
@@ -409,6 +437,8 @@ export class SignatureComponent implements OnInit {
             console.error('execCommand copy failed:', execErr);
           }
           document.body.removeChild(textArea);
+        } catch (finalErr) {
+          console.error('Final fallback failed:', finalErr);
         }
       }
     }
