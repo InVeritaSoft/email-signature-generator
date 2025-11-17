@@ -1,9 +1,10 @@
-import { computed } from '@angular/core';
+import { computed, effect } from '@angular/core';
 import {
   signalStore,
   withState,
   withComputed,
   withMethods,
+  withHooks,
   patchState,
 } from '@ngrx/signals';
 import { GRADIENTS } from '../constants/colors';
@@ -35,17 +36,66 @@ export interface SignatureState {
   variant: SignatureVariant;
 }
 
+// Random job titles for default position
+const randomTitles = [
+  'Software Engineer',
+  'Product Manager',
+  'Marketing Director',
+  'Sales Executive',
+  'Designer',
+  'Developer',
+  'Project Manager',
+  'Business Analyst',
+  'Data Scientist',
+  'UX Designer',
+  'Frontend Developer',
+  'Backend Developer',
+  'Full Stack Developer',
+  'DevOps Engineer',
+  'QA Engineer',
+  'Technical Lead',
+  'Engineering Manager',
+  'CTO',
+  'CEO',
+  'CFO',
+  'CMO',
+  'VP of Engineering',
+  'VP of Sales',
+  'VP of Marketing',
+  'Senior Developer',
+  'Senior Designer',
+  'Consultant',
+  'Architect',
+  'Team Lead',
+  'Scrum Master',
+  'Product Owner',
+  'Business Development Manager',
+  'Account Manager',
+  'Content Manager',
+  'Social Media Manager',
+  'HR Manager',
+  'Operations Manager',
+  'Customer Success Manager',
+  'Growth Hacker',
+  'Digital Marketing Specialist'
+];
+
+// Helper to get random title
+const getRandomTitle = (): string => {
+  return randomTitles[Math.floor(Math.random() * randomTitles.length)];
+};
+
 const initialState: SignatureState = {
-  name: 'Zoryan Hudziy',
-  title: 'CEO, Co-founder Inverita',
-  linkedInText: 'Zoryan on LinkedIn',
-  linkedInUrl: 'https://www.linkedin.com/in/zoryan-hudziy',
+  name: 'John Doe',
+  title: getRandomTitle(),
+  linkedInText: 'John on LinkedIn',
+  linkedInUrl: 'https://www.linkedin.com/in/john-doe',
   websiteUrl: 'https://inveritasoft.com',
   websiteText: 'inveritasoft.com',
   facebookUrl: 'https://www.facebook.com/inveritasoft',
   youtubeUrl: 'https://www.youtube.com/@inveritasoft',
   linkedInSocialUrl: 'https://www.linkedin.com/company/inveritasoft',
-  imageUrl: 'assets/f629c4c2df25111d7773a91610d6528d1a8cb5bb.png',
+  imageUrl: 'https://i.pravatar.cc/180?img=' + Math.floor(Math.random() * 70),
   baseUrl: '',
   variant: SignatureVariant.Classic,
 };
@@ -56,9 +106,86 @@ const facebookIconUrl = 'assets/86fe2a2a805b38a53a570fffbfcedff5bee14c6e.svg';
 const youtubeIconUrl = 'assets/e954b2b256844b45a4312866e2427080e4f4680e.svg';
 const linkedInIconUrl = 'assets/252ab1f841d7b12fa4ab683d55d5059552029ff1.svg';
 
+// Chrome Storage key
+const STORAGE_KEY = 'signatureState';
+
+// Helper to check if Chrome Storage API is available
+const isChromeExtension = (): boolean => {
+  return typeof chrome !== 'undefined' && 
+         typeof chrome.storage !== 'undefined' && 
+         typeof chrome.storage.local !== 'undefined';
+};
+
+// Helper to load state from Chrome Storage
+const loadFromStorage = async (): Promise<Partial<SignatureState> | null> => {
+  if (!isChromeExtension()) {
+    return null;
+  }
+
+  try {
+    const result = await chrome.storage.local.get(STORAGE_KEY);
+    return result[STORAGE_KEY] || null;
+  } catch (error) {
+    console.error('Failed to load from Chrome Storage:', error);
+    return null;
+  }
+};
+
+// Helper to save state to Chrome Storage
+const saveToStorage = async (state: SignatureState): Promise<void> => {
+  if (!isChromeExtension()) {
+    return;
+  }
+
+  try {
+    await chrome.storage.local.set({ [STORAGE_KEY]: state });
+  } catch (error) {
+    console.error('Failed to save to Chrome Storage:', error);
+  }
+};
+
 export const SignatureStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
+  withHooks({
+    onInit: async (store) => {
+      // Load state from Chrome Storage on initialization
+      const savedState = await loadFromStorage();
+      let isInitializing = true;
+      
+      if (savedState) {
+        patchState(store, savedState);
+      }
+      
+      // Mark initialization as complete
+      isInitializing = false;
+      
+      // Watch for state changes and save to Chrome Storage
+      // Only save after initialization is complete to avoid saving during load
+      effect(() => {
+        // Skip saving during initialization
+        if (isInitializing) {
+          return;
+        }
+        
+        const currentState = {
+          name: store.name(),
+          title: store.title(),
+          linkedInUrl: store.linkedInUrl(),
+          linkedInText: store.linkedInText(),
+          websiteUrl: store.websiteUrl(),
+          websiteText: store.websiteText(),
+          facebookUrl: store.facebookUrl(),
+          youtubeUrl: store.youtubeUrl(),
+          linkedInSocialUrl: store.linkedInSocialUrl(),
+          imageUrl: store.imageUrl(),
+          baseUrl: store.baseUrl(),
+          variant: store.variant(),
+        };
+        saveToStorage(currentState);
+      });
+    },
+  }),
   withComputed((store) => ({
     // Computed state signal that combines all individual signals
     state: computed(() => ({
@@ -99,21 +226,39 @@ export const SignatureStore = signalStore(
           imagePath.startsWith('assets/') ||
           imagePath.startsWith('/assets/')
         ) {
-          // For relative asset paths, resolve to current origin
-          const basePath = imagePath.startsWith('/')
-            ? imagePath
-            : `/${imagePath}`;
-          resolvedPath = `${window.location.origin}${basePath}`;
+          // Check if we're in a Chrome Extension context
+          if (isChromeExtension() && chrome.runtime && chrome.runtime.getURL) {
+            // Use chrome.runtime.getURL for extension resources
+            const basePath = imagePath.startsWith('/')
+              ? imagePath.substring(1)
+              : imagePath;
+            resolvedPath = chrome.runtime.getURL(basePath);
+          } else {
+            // For web context, resolve to current origin
+            const basePath = imagePath.startsWith('/')
+              ? imagePath
+              : `/${imagePath}`;
+            resolvedPath = `${window.location.origin}${basePath}`;
+          }
         } else if (
           !imagePath.startsWith('http://') &&
           !imagePath.startsWith('https://') &&
           !imagePath.startsWith('data:')
         ) {
-          // For other relative paths, resolve to current origin
-          const basePath = imagePath.startsWith('/')
-            ? imagePath
-            : `/${imagePath}`;
-          resolvedPath = `${window.location.origin}${basePath}`;
+          // For other relative paths
+          if (isChromeExtension() && chrome.runtime && chrome.runtime.getURL) {
+            // Use chrome.runtime.getURL for extension resources
+            const basePath = imagePath.startsWith('/')
+              ? imagePath.substring(1)
+              : imagePath;
+            resolvedPath = chrome.runtime.getURL(basePath);
+          } else {
+            // For web context, resolve to current origin
+            const basePath = imagePath.startsWith('/')
+              ? imagePath
+              : `/${imagePath}`;
+            resolvedPath = `${window.location.origin}${basePath}`;
+          }
         }
 
         // Fetch the image
@@ -236,6 +381,12 @@ export const SignatureStore = signalStore(
 
       reset(): void {
         patchState(store, initialState);
+        // Clear Chrome Storage on reset
+        if (isChromeExtension()) {
+          chrome.storage.local.remove(STORAGE_KEY).catch((error) => {
+            console.error('Failed to clear Chrome Storage:', error);
+          });
+        }
       },
 
       /**

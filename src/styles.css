@@ -47,6 +47,10 @@
   padding: 0;
 }
 
+html {
+  height: 100%;
+}
+
 html,
 body {
   height: 100%;
@@ -60,6 +64,12 @@ body {
 
 body {
   margin: 0;
+  min-width: 1200px;
+}
+
+app-root {
+  display: block;
+  width: 100%;
 }
 
 /* Utility Classes */

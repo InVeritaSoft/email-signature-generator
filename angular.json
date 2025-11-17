@@ -27,7 +27,17 @@
             ],
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "manifest.json",
+                "input": ".",
+                "output": "/"
+              },
+              {
+                "glob": "background.js",
+                "input": "src",
+                "output": "/"
+              }
             ],
             "styles": [
               "src/styles.css"
@@ -54,6 +64,25 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "extension": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "20kB",
+                  "maximumError": "25kB"
+                }
+              ],
+              "outputHashing": "none",
+              "baseHref": "./",
+              "optimization": true,
+              "extractLicenses": false,
+              "sourceMap": false
             }
           },
           "defaultConfiguration": "production"

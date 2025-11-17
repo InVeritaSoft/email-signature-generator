@@ -1,18 +1,60 @@
-/* Page Layout */
+/* Page Layout - 3 Columns */
 .page-container {
   display: flex;
-  gap: 60px;
+  gap: 30px;
   padding: 20px;
-  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
-/* Form Container */
-.form-container {
-  flex: 1;
+/* Column 1: Variant Selector */
+.variant-column {
+  flex: 0 0 280px;
+  min-width: 280px;
+}
+
+.variant-column h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #101828;
+}
+
+/* Column 2: Preview */
+.preview-column {
+  flex: 0 0 700px;
+  min-width: 700px;
+}
+
+.preview-column h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #101828;
+}
+
+/* Column 3: Form */
+.form-column {
+  flex: 0 0 400px;
   min-width: 400px;
-  max-width: 500px;
+}
+
+.form-column h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #101828;
+}
+
+/* Form Container (legacy - keeping for compatibility) */
+.form-container {
+  flex: 0 0 400px;
+  min-width: 400px;
 }
 
 .form-container h2 {
@@ -84,20 +126,23 @@
 .upload-button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: var(--inverita-blue);
-  color: var(--inverita-white);
-  border: none;
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   text-align: center;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .upload-button:hover {
-  background-color: var(--color-primary-hover);
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .upload-button span {
@@ -113,20 +158,24 @@
 
 .clear-image-button {
   padding: 6px 12px;
-  background-color: #dc2626;
-  color: white;
-  border: none;
+  background-color: #ffffff;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
   border-radius: 4px;
   font-family: "Montserrat", sans-serif;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   margin-top: 4px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .clear-image-button:hover {
-  background-color: #b91c1c;
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .or-divider {
@@ -171,24 +220,30 @@
 
 .copy-button {
   padding: 12px 24px;
-  background-color: var(--inverita-blue);
-  color: var(--inverita-white);
-  border: none;
+  background-color: #1f2937;
+  color: #ffffff;
+  border: 1px solid #1f2937;
   border-radius: 6px;
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .copy-button:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
+  background-color: #111827;
+  border-color: #111827;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
 .copy-button:disabled {
-  background-color: var(--inverita-light-grey);
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  border-color: #e5e7eb;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .success-message {
@@ -200,8 +255,8 @@
 
 /* Preview Container */
 .preview-container {
-  flex: 0 0 auto;
-  min-width: 600px;
+  flex: 0 0 700px;
+  min-width: 700px;
   align-self: flex-start;
 }
 
@@ -216,7 +271,7 @@
 .signature-container {
   background-color: #fbfbfb;
   padding: 0;
-  width: 600px;
+  width: 700px;
   display: inline-block;
   border: 0;
 }
@@ -260,6 +315,7 @@
   pointer-events: none;
   width: 100%;
   height: 100%;
+  filter: grayscale(100%);
 }
 
 .logo-container {
@@ -578,7 +634,7 @@
   padding-top: 60px;
   border-top: 2px solid #e0e0e0;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
 }
 
 .controls {
@@ -632,9 +688,67 @@
   border-radius: 0;
 }
 
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.copy-email-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .preview-section h3 {
-  margin: 0 0 20px 0;
+  margin: 0;
   color: #333;
+  font-family: "Montserrat", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.copy-email-button {
+  padding: 8px 16px;
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.copy-email-button:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.email-copy-success {
+  color: #059669;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .email-preview-container {
@@ -643,7 +757,7 @@
   border: 0;
   border-radius: 0;
   overflow-x: auto;
-  width: 600px;
+  width: 700px;
   display: inline-block;
 }
 

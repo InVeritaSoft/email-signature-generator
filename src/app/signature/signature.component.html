@@ -1,9 +1,7 @@
 <div class="page-container">
-  <!-- Form Section -->
-  <div class="form-container">
-    <h2>Signature Generator</h2>
-
-    <!-- Variant Selector -->
+  <!-- Column 1: Variant Selector -->
+  <div class="variant-column">
+    <h2>Choose Variant</h2>
     <div class="variant-selector-section">
       <label class="variant-label">Choose Signature Style:</label>
       <div class="variant-thumbnails">
@@ -19,272 +17,10 @@
         </div>
       </div>
     </div>
-
-    <form [formGroup]="signatureForm" class="signature-form">
-      <div class="form-group">
-        <label for="name">Name *</label>
-        <input
-          id="name"
-          type="text"
-          formControlName="name"
-          class="form-control"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('name')?.invalid &&
-            signatureForm.get('name')?.touched
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('name')?.invalid &&
-            signatureForm.get('name')?.touched
-          "
-          class="error-message"
-        >
-          Name is required
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="title">Title/Position *</label>
-        <input
-          id="title"
-          type="text"
-          formControlName="title"
-          class="form-control"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('title')?.invalid &&
-            signatureForm.get('title')?.touched
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('title')?.invalid &&
-            signatureForm.get('title')?.touched
-          "
-          class="error-message"
-        >
-          Title is required
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="imageUrl">Portrait Image</label>
-        <div class="image-upload-container">
-          <div class="upload-section">
-            <label for="imageUpload" class="upload-button">
-              <span>📷 Upload Image</span>
-              <input
-                id="imageUpload"
-                type="file"
-                accept="image/jpeg,image/jpg,image/png"
-                (change)="onImageUpload($event)"
-                style="display: none"
-              />
-            </label>
-            <span class="upload-hint">JPG, JPEG, or PNG (max 5MB)</span>
-            <button
-              *ngIf="store.imageUrl()"
-              type="button"
-              class="clear-image-button"
-              (click)="clearImage()"
-            >
-              Clear Image
-            </button>
-          </div>
-          <div class="or-divider">OR</div>
-          <div class="url-section">
-            <input
-              id="imageUrl"
-              type="url"
-              formControlName="imageUrl"
-              class="form-control"
-              placeholder="https://example.com/image.jpg or paste base64 data URL"
-              (input)="syncFormToStore($event)"
-              [class.invalid]="
-                signatureForm.get('imageUrl')?.invalid &&
-                signatureForm.get('imageUrl')?.touched
-              "
-            />
-            <div
-              *ngIf="
-                signatureForm.get('imageUrl')?.invalid &&
-                signatureForm.get('imageUrl')?.touched
-              "
-              class="error-message"
-            >
-              Please enter a valid URL or upload an image
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="linkedInUrl">LinkedIn Profile URL</label>
-        <input
-          id="linkedInUrl"
-          type="url"
-          formControlName="linkedInUrl"
-          class="form-control"
-          placeholder="https://www.linkedin.com/in/username"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('linkedInUrl')?.invalid &&
-            signatureForm.get('linkedInUrl')?.touched
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('linkedInUrl')?.invalid &&
-            signatureForm.get('linkedInUrl')?.touched
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="linkedInText">LinkedIn Link Text</label>
-        <input
-          id="linkedInText"
-          type="text"
-          formControlName="linkedInText"
-          class="form-control"
-          (input)="syncFormToStore($event)"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="websiteUrl">Website URL</label>
-        <input
-          id="websiteUrl"
-          type="url"
-          formControlName="websiteUrl"
-          class="form-control"
-          placeholder="https://example.com"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('websiteUrl')?.invalid &&
-            signatureForm.get('websiteUrl')?.touched
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('websiteUrl')?.invalid &&
-            signatureForm.get('websiteUrl')?.touched
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="websiteText">Website Display Text</label>
-        <input
-          id="websiteText"
-          type="text"
-          formControlName="websiteText"
-          class="form-control"
-          (input)="syncFormToStore($event)"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="facebookUrl">Facebook URL</label>
-        <input
-          id="facebookUrl"
-          type="url"
-          formControlName="facebookUrl"
-          class="form-control"
-          placeholder="https://www.facebook.com/username"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('facebookUrl')?.invalid &&
-            signatureForm.get('facebookUrl')?.touched
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('facebookUrl')?.invalid &&
-            signatureForm.get('facebookUrl')?.touched
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="youtubeUrl">YouTube URL</label>
-        <input
-          id="youtubeUrl"
-          type="url"
-          formControlName="youtubeUrl"
-          class="form-control"
-          placeholder="https://www.youtube.com/@username"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('youtubeUrl')?.invalid &&
-            signatureForm.get('youtubeUrl')?.touched
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('youtubeUrl')?.invalid &&
-            signatureForm.get('youtubeUrl')?.touched
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="linkedInSocialUrl">LinkedIn Company URL</label>
-        <input
-          id="linkedInSocialUrl"
-          type="url"
-          formControlName="linkedInSocialUrl"
-          class="form-control"
-          placeholder="https://www.linkedin.com/company/companyname"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('linkedInSocialUrl')?.invalid &&
-            signatureForm.get('linkedInSocialUrl')?.touched
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('linkedInSocialUrl')?.invalid &&
-            signatureForm.get('linkedInSocialUrl')?.touched
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button
-          type="button"
-          (click)="copyToClipboard()"
-          class="copy-button"
-          [disabled]="signatureForm.invalid"
-        >
-          Copy HTML to Clipboard
-        </button>
-        <div *ngIf="copySuccess()" class="success-message">
-          ✓ Copied to clipboard!
-        </div>
-      </div>
-    </form>
   </div>
 
-  <!-- Preview Section -->
-  <div class="preview-container">
+  <!-- Column 2: Preview Section -->
+  <div class="preview-column">
     <h2>Preview</h2>
     <div
       class="signature-container"
@@ -448,7 +184,7 @@
 
     <!-- Email Test Section -->
     <div class="email-test-section">
-      <div class="controls">
+      <!-- <div class="controls">
         <h2>Email Signature Test</h2>
         <div class="input-group">
           <label for="baseUrl">Base URL for Images (optional):</label>
@@ -465,40 +201,284 @@
             https://inveritasoft.com) for absolute image URLs
           </p>
         </div>
-      </div>
+      </div> -->
 
       <div class="preview-section">
-        <h3>Email Preview</h3>
+        <div class="preview-header">
+          <h3>Email Preview</h3>
+          <div class="copy-email-wrapper">
+            <button
+              type="button"
+              (click)="copyEmailPreviewToClipboard()"
+              class="copy-email-button"
+            >
+              Copy Email Preview to Clipboard
+            </button>
+            <div *ngIf="emailPreviewCopySuccess()" class="email-copy-success">
+              ✓ Copied!
+            </div>
+          </div>
+        </div>
         <div class="email-preview-container" [innerHTML]="emailHtml()"></div>
       </div>
-
-      <!-- <div class="code-section">
-        <div class="code-block">
-          <div class="code-header">
-            <h3>Email Signature HTML (for direct insertion)</h3>
-            <button
-              class="copy-button"
-              (click)="copyEmailToClipboard(emailSignatureString())"
-            >
-              Copy
-            </button>
-          </div>
-          <pre class="code-content">{{ emailSignatureString() }}</pre>
-        </div>
-
-        <div class="code-block">
-          <div class="code-header">
-            <h3>Full HTML Document</h3>
-            <button
-              class="copy-button"
-              (click)="copyEmailToClipboard(emailHtmlString())"
-            >
-              Copy
-            </button>
-          </div>
-          <pre class="code-content">{{ emailHtmlString() }}</pre>
-        </div>
-      </div> -->
     </div>
+  </div>
+
+  <!-- Column 3: Form Section -->
+  <div class="form-column">
+    <h2>Edit Data</h2>
+    <form [formGroup]="signatureForm" class="signature-form">
+      <div class="form-group">
+        <label for="name">Name *</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('name')?.invalid &&
+            (signatureForm.get('name')?.touched || formSubmitted())
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('name')?.invalid &&
+            (signatureForm.get('name')?.touched || formSubmitted())
+          "
+          class="error-message"
+        >
+          Name is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="title">Title/Position *</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          class="form-control"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('title')?.invalid &&
+            (signatureForm.get('title')?.touched || formSubmitted())
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('title')?.invalid &&
+            (signatureForm.get('title')?.touched || formSubmitted())
+          "
+          class="error-message"
+        >
+          Title is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">Portrait Image</label>
+        <div class="image-upload-container">
+          <div class="upload-section">
+            <label for="imageUpload" class="upload-button">
+              <span>📷 Upload Image</span>
+              <input
+                id="imageUpload"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png"
+                (change)="onImageUpload($event)"
+                style="display: none"
+              />
+            </label>
+            <span class="upload-hint">JPG, JPEG, or PNG (max 5MB)</span>
+            <button
+              *ngIf="store.imageUrl()"
+              type="button"
+              class="clear-image-button"
+              (click)="clearImage()"
+            >
+              Clear Image
+            </button>
+          </div>
+          <div class="or-divider">OR</div>
+          <div class="url-section">
+            <input
+              id="imageUrl"
+              type="url"
+              formControlName="imageUrl"
+              class="form-control"
+              placeholder="https://example.com/image.jpg or paste base64 data URL"
+              (input)="syncFormToStore($event)"
+              [class.invalid]="
+                signatureForm.get('imageUrl')?.invalid &&
+                (signatureForm.get('imageUrl')?.touched || formSubmitted())
+              "
+            />
+            <div
+              *ngIf="
+                signatureForm.get('imageUrl')?.invalid &&
+                (signatureForm.get('imageUrl')?.touched || formSubmitted())
+              "
+              class="error-message"
+            >
+              Please enter a valid URL or upload an image
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="linkedInUrl">LinkedIn Profile URL</label>
+        <input
+          id="linkedInUrl"
+          type="url"
+          formControlName="linkedInUrl"
+          class="form-control"
+          placeholder="https://www.linkedin.com/in/username"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('linkedInUrl')?.invalid &&
+            (signatureForm.get('linkedInUrl')?.touched || formSubmitted())
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('linkedInUrl')?.invalid &&
+            (signatureForm.get('linkedInUrl')?.touched || formSubmitted())
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="linkedInText">LinkedIn Link Text</label>
+        <input
+          id="linkedInText"
+          type="text"
+          formControlName="linkedInText"
+          class="form-control"
+          (input)="syncFormToStore($event)"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="websiteUrl">Website URL</label>
+        <input
+          id="websiteUrl"
+          type="url"
+          formControlName="websiteUrl"
+          class="form-control"
+          placeholder="https://example.com"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('websiteUrl')?.invalid &&
+            (signatureForm.get('websiteUrl')?.touched || formSubmitted())
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('websiteUrl')?.invalid &&
+            (signatureForm.get('websiteUrl')?.touched || formSubmitted())
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="websiteText">Website Display Text</label>
+        <input
+          id="websiteText"
+          type="text"
+          formControlName="websiteText"
+          class="form-control"
+          (input)="syncFormToStore($event)"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="facebookUrl">Facebook URL</label>
+        <input
+          id="facebookUrl"
+          type="url"
+          formControlName="facebookUrl"
+          class="form-control"
+          placeholder="https://www.facebook.com/username"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('facebookUrl')?.invalid &&
+            (signatureForm.get('facebookUrl')?.touched || formSubmitted())
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('facebookUrl')?.invalid &&
+            (signatureForm.get('facebookUrl')?.touched || formSubmitted())
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="youtubeUrl">YouTube URL</label>
+        <input
+          id="youtubeUrl"
+          type="url"
+          formControlName="youtubeUrl"
+          class="form-control"
+          placeholder="https://www.youtube.com/@username"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('youtubeUrl')?.invalid &&
+            (signatureForm.get('youtubeUrl')?.touched || formSubmitted())
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('youtubeUrl')?.invalid &&
+            (signatureForm.get('youtubeUrl')?.touched || formSubmitted())
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="linkedInSocialUrl">LinkedIn Company URL</label>
+        <input
+          id="linkedInSocialUrl"
+          type="url"
+          formControlName="linkedInSocialUrl"
+          class="form-control"
+          placeholder="https://www.linkedin.com/company/companyname"
+          (input)="syncFormToStore($event)"
+          [class.invalid]="
+            signatureForm.get('linkedInSocialUrl')?.invalid &&
+            (signatureForm.get('linkedInSocialUrl')?.touched || formSubmitted())
+          "
+        />
+        <div
+          *ngIf="
+            signatureForm.get('linkedInSocialUrl')?.invalid &&
+            (signatureForm.get('linkedInSocialUrl')?.touched || formSubmitted())
+          "
+          class="error-message"
+        >
+          Please enter a valid URL
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" (click)="copyToClipboard()" class="copy-button">
+          Validate
+        </button>
+      </div>
+    </form>
   </div>
 </div>

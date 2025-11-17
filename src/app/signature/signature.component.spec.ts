@@ -21,10 +21,10 @@ describe('SignatureComponent', () => {
 
   it('should initialize form with default values', () => {
     expect(component.signatureForm).toBeTruthy();
-    expect(component.signatureForm.get('name')?.value).toBe('Zoryan Hudziy');
-    expect(component.signatureForm.get('title')?.value).toBe('CEO, Co-founder Inverita');
-    expect(component.signatureForm.get('linkedInUrl')?.value).toBe('https://www.linkedin.com/in/zoryan-hudziy');
-    expect(component.signatureForm.get('linkedInText')?.value).toBe('Zoryan on LinkedIn');
+    expect(component.signatureForm.get('name')?.value).toBe('John Doe');
+    expect(component.signatureForm.get('title')?.value).toBeTruthy(); // Title is now random
+    expect(component.signatureForm.get('linkedInUrl')?.value).toBe('https://www.linkedin.com/in/john-doe');
+    expect(component.signatureForm.get('linkedInText')?.value).toBe('John on LinkedIn');
     expect(component.signatureForm.get('websiteUrl')?.value).toBe('https://inveritasoft.com');
     expect(component.signatureForm.get('websiteText')?.value).toBe('inveritasoft.com');
   });
@@ -63,21 +63,21 @@ describe('SignatureComponent', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     const nameElement = compiled.querySelector('[data-name="name"]');
-    expect(nameElement?.textContent?.trim()).toBe('Zoryan Hudziy');
+    expect(nameElement?.textContent?.trim()).toBe('John Doe');
   });
 
   it('should display the title from form', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     const titleElement = compiled.querySelector('[data-name="title"]');
-    expect(titleElement?.textContent?.trim()).toContain('CEO, Co-founder Inverita');
+    expect(titleElement?.textContent?.trim()).toBeTruthy(); // Title is now random
   });
 
   it('should display the LinkedIn link from form', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     const linkedInLink = compiled.querySelector('[data-name="linkedin-link"]');
-    expect(linkedInLink?.textContent?.trim()).toBe('Zoryan on LinkedIn');
+    expect(linkedInLink?.textContent?.trim()).toBe('John on LinkedIn');
   });
 
   it('should display the website link from form', () => {
