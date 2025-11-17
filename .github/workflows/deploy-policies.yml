@@ -38,6 +38,8 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true  # Automatically enable GitHub Pages if not already enabled
 
       - name: Build static site
         # Copy policies folder contents to a build directory
