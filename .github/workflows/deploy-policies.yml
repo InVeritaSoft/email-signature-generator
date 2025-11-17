@@ -1,11 +1,12 @@
 name: Deploy Policies to GitHub Pages
 
 on:
-  # Trigger on push to default branch (main or master)
+  # Trigger on push to default branch (main or master) or extension branch
   push:
     branches:
       - main
       - master
+      - extension  # Add your current branch if you want it to trigger here too
     paths:
       - 'policies/**'
       - '.github/workflows/deploy-policies.yml'
