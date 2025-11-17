@@ -1735,7 +1735,7 @@ export const SignatureStore = signalStore(
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: ${GRADIENTS.blue};">
         <tr>
           <!-- Left Column: Portrait and Logo -->
-          <td valign="top" width="180" style="width: 180px; padding: 0; vertical-align: top; background: ${GRADIENTS.blue};">
+          <td valign="top" width="180" style="width: 180px; padding: 0; vertical-align: top; background: #fff;">
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: ${GRADIENTS.blue};">
               <!-- Portrait Image -->
               <tr>
