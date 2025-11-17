@@ -22,9 +22,7 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "assets": [
               "src/favicon.ico",
               "src/assets",
@@ -65,7 +63,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/app/"
+              "baseHref": "/email-signature/"
             },
             "development": {
               "optimization": false,
@@ -110,16 +108,10 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "css",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               "node_modules/remixicon/fonts/remixicon.css",
               "src/styles.css"
@@ -131,4 +123,3 @@
     }
   }
 }
-
