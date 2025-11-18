@@ -1728,14 +1728,14 @@ export const SignatureStore = signalStore(
         const linkedInSocialUrl = state.linkedInSocialUrl || '';
 
         return `<!-- Main Container Table -->
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="background: ${GRADIENTS.blue}; padding: 0; margin: 0 auto; border: 0;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="padding: 0; margin: 0 auto; border: 0;">
   <tr>
-    <td style="padding: 0; background: ${GRADIENTS.blue};">
+    <td style="padding: 0">
       <!-- Content Table with spacer cells for inner gaps only -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: ${GRADIENTS.blue};">
         <tr>
           <!-- Left Column: Portrait and Logo -->
-          <td valign="top" width="180" style="width: 180px; padding: 0; vertical-align: top; background: #fff;">
+          <td valign="top" width="180" style="width: 180px; padding: 0; vertical-align: top; background-color: #FFFFFF;" bgcolor="#FFFFFF">
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: ${GRADIENTS.blue};">
               <!-- Portrait Image -->
               <tr>
@@ -1751,8 +1751,20 @@ export const SignatureStore = signalStore(
               </tr>
               <!-- Logo -->
               <tr>
-                <td style="padding: 0; background-color: #FFFFFF; height: 60px; text-align: center; vertical-align: middle;">
-                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0);" />
+                <td style="padding: 0; background-color: #FFFFFF; height: 60px; text-align: center; vertical-align: middle;" bgcolor="#FFFFFF">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #FFFFFF;" bgcolor="#FFFFFF">
+                    <tr>
+                      <td style="padding: 12.5px 0; text-align: center; vertical-align: middle; background-color: #FFFFFF;" bgcolor="#FFFFFF">
+                        <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none; filter: brightness(0);" />
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <!-- White background spacer to ensure background extends -->
+              <tr>
+                <td style="padding: 0; height: 1px; line-height: 1px; font-size: 1px; background-color: #FFFFFF;" bgcolor="#FFFFFF">
+                  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="180" height="1" style="display: block; width: 180px; height: 1px; border: 0;" />
                 </td>
               </tr>
             </table>
