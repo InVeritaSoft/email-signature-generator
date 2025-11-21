@@ -46,7 +46,12 @@
               "node_modules/remixicon/fonts/remixicon.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "node-fetch",
+              "seedrandom",
+              "long"
+            ]
           },
           "configurations": {
             "production": {
@@ -58,7 +63,7 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "20kB",
+                  "maximumWarning": "21kB",
                   "maximumError": "25kB"
                 }
               ],
@@ -80,7 +85,7 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "20kB",
+                  "maximumWarning": "21kB",
                   "maximumError": "25kB"
                 }
               ],

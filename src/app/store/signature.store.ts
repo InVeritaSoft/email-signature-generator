@@ -1083,7 +1083,7 @@ export const SignatureStore = signalStore(
         const linkedInSocialUrl = state.linkedInSocialUrl || '';
 
         return `<!-- Main Container Table -->
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="background-color: #fbfbfb; padding: 0; margin: 0 auto; border: 0;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="background-color: #fbfbfb; padding: 0; border: 0;">
   <tr>
     <td>
       <!-- Content Table -->
@@ -1840,7 +1840,7 @@ export const SignatureStore = signalStore(
         const linkedInSocialUrl = state.linkedInSocialUrl || '';
 
         return `<!-- Main Container Table -->
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="padding: 0; margin: 0 auto; border: 0;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="padding: 0; border: 0;">
   <tr>
     <td style="padding: 0">
       <!-- Content Table with spacer cells for inner gaps only -->
