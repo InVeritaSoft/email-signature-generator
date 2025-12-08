@@ -465,19 +465,17 @@ export class SignatureComponent implements OnInit {
     SignatureVariant.Vertical,
     SignatureVariant.Quadrant,
     SignatureVariant.HorizontalLogo,
-    SignatureVariant.GradientBlue,
     SignatureVariant.HorizontalSimple,
     SignatureVariant.VerticalSimple,
-  ];
+  ].filter(variant => variant !== SignatureVariant.GradientBlue);
 
   /**
-   * Get visible variants (only Classic and GradientBlue are shown)
+   * Get visible variants (only Classic is shown)
    */
   readonly visibleVariants = computed(() => {
     return this.variants.filter(
       (variant) =>
-        variant === SignatureVariant.Classic ||
-        variant === SignatureVariant.GradientBlue
+        variant === SignatureVariant.Classic
     );
   });
 
