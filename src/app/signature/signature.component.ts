@@ -388,63 +388,100 @@ export class SignatureComponent implements OnInit {
   }
 
   /**
+   * Copies rich HTML via selection + execCommand. Required for Safari where
+   * ClipboardItem + navigator.clipboard.write() is often unavailable or rejects.
+   */
+  private copyHtmlAsRichTextViaExecCommand(html: string): boolean {
+    const container = document.createElement('div');
+    container.contentEditable = 'true';
+    container.innerHTML = html;
+    container.setAttribute(
+      'style',
+      'position:fixed;left:-10000px;top:0;opacity:0;pointer-events:none;',
+    );
+    document.body.appendChild(container);
+    const selection = window.getSelection();
+    if (!selection) {
+      document.body.removeChild(container);
+      return false;
+    }
+    selection.removeAllRanges();
+    const range = document.createRange();
+    range.selectNodeContents(container);
+    selection.addRange(range);
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } finally {
+      selection.removeAllRanges();
+      document.body.removeChild(container);
+    }
+    return ok;
+  }
+
+  private copyPlainTextViaExecCommand(text: string): boolean {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.select();
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } finally {
+      document.body.removeChild(textArea);
+    }
+    return ok;
+  }
+
+  /**
+   * Tries Clipboard API (rich), then execCommand rich HTML (Safari-friendly), then plain text.
+   */
+  private async tryCopyEmailPreviewHtml(htmlWithBase64: string): Promise<boolean> {
+    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+      try {
+        const clipboardItem = new ClipboardItem({
+          'text/html': new Blob([htmlWithBase64], { type: 'text/html' }),
+          'text/plain': new Blob([htmlWithBase64], { type: 'text/plain' }),
+        });
+        await navigator.clipboard.write([clipboardItem]);
+        return true;
+      } catch {
+        /* Safari / older engines: fall through */
+      }
+    }
+    if (this.copyHtmlAsRichTextViaExecCommand(htmlWithBase64)) {
+      return true;
+    }
+    try {
+      await navigator.clipboard.writeText(htmlWithBase64);
+      return true;
+    } catch {
+      /* continue */
+    }
+    return this.copyPlainTextViaExecCommand(htmlWithBase64);
+  }
+
+  private setEmailPreviewCopied(): void {
+    this.emailPreviewCopySuccess.set(true);
+    setTimeout(() => {
+      this.emailPreviewCopySuccess.set(false);
+    }, 2000);
+  }
+
+  /**
    * Copies the email preview HTML to clipboard (rendered HTML as displayed)
    */
   async copyEmailPreviewToClipboard(): Promise<void> {
     try {
-      // Use the generated email signature string and convert all images to base64
-      // This ensures all icons and images are embedded and work in email clients
       const html = await this.generateEmailSignature();
       const htmlWithBase64 = await this.store.convertImagesToBase64(html);
-
-      // Copy as HTML to clipboard (preserves formatting)
-      const clipboardItem = new ClipboardItem({
-        'text/html': new Blob([htmlWithBase64], { type: 'text/html' }),
-        'text/plain': new Blob([htmlWithBase64], { type: 'text/plain' }),
-      });
-
-      await navigator.clipboard.write([clipboardItem]);
-      this.emailPreviewCopySuccess.set(true);
-      setTimeout(() => {
-        this.emailPreviewCopySuccess.set(false);
-      }, 2000);
+      if (await this.tryCopyEmailPreviewHtml(htmlWithBase64)) {
+        this.setEmailPreviewCopied();
+      }
     } catch (err) {
       console.error('Failed to copy email preview to clipboard:', err);
-      // Fallback: try copying as plain text HTML with base64 conversion
-      try {
-        const html = await this.generateEmailSignature();
-        const htmlWithBase64 = await this.store.convertImagesToBase64(html);
-        await navigator.clipboard.writeText(htmlWithBase64);
-        this.emailPreviewCopySuccess.set(true);
-        setTimeout(() => {
-          this.emailPreviewCopySuccess.set(false);
-        }, 2000);
-      } catch (fallbackErr) {
-        console.error('Fallback copy failed:', fallbackErr);
-        // Final fallback using execCommand
-        try {
-          const html = await this.generateEmailSignature();
-          const htmlWithBase64 = await this.store.convertImagesToBase64(html);
-          const textArea = document.createElement('textarea');
-          textArea.value = htmlWithBase64;
-          textArea.style.position = 'fixed';
-          textArea.style.left = '-999999px';
-          document.body.appendChild(textArea);
-          textArea.select();
-          try {
-            document.execCommand('copy');
-            this.emailPreviewCopySuccess.set(true);
-            setTimeout(() => {
-              this.emailPreviewCopySuccess.set(false);
-            }, 2000);
-          } catch (execErr) {
-            console.error('execCommand copy failed:', execErr);
-          }
-          document.body.removeChild(textArea);
-        } catch (finalErr) {
-          console.error('Final fallback failed:', finalErr);
-        }
-      }
     }
   }
 
