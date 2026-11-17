@@ -12,6 +12,8 @@ declare namespace chrome {
     const local: StorageArea;
   }
   namespace runtime {
+    // Set only inside an extension; undefined on ordinary web pages in Chrome
+    const id: string | undefined;
     function getURL(path: string): string;
   }
 }

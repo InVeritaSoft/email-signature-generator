@@ -71,6 +71,33 @@
   min-height: 240px;
 }
 
+.preview-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.extension-link {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--inverita-white);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.extension-link:hover {
+  color: var(--inverita-white);
+  text-decoration-thickness: 2px;
+}
+
+.extension-link:focus-visible {
+  outline: 2px solid var(--inverita-white);
+  outline-offset: 2px;
+}
+
 .preview-note {
   font-size: 13px;
   line-height: 18px;

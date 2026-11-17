@@ -10,7 +10,18 @@
         <div class="email-preview-container" [innerHTML]="emailHtml()"></div>
       </div>
 
-      <p class="preview-note">Shown at the size recipients will see it.</p>
+      <div class="preview-footer">
+        <p class="preview-note">Shown at the size recipients will see it.</p>
+        <a
+          *ngIf="!isExtension"
+          class="extension-link"
+          [href]="extensionUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Get the Chrome extension
+        </a>
+      </div>
     </section>
 
     <!-- Editor -->

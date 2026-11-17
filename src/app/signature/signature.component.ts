@@ -29,6 +29,12 @@ export class SignatureComponent implements OnInit {
   // Image assets (hardcoded - not editable)
   readonly logoUrl = 'assets/logo.png';
 
+  // Chrome Web Store listing, promoted on the web version only
+  readonly extensionUrl =
+    'https://chromewebstore.google.com/detail/email-signature-generator/iobndbfkonikcffmhdijjbebaeoaglpj';
+  readonly isExtension =
+    typeof chrome !== 'undefined' && !!chrome.runtime?.id;
+
   // Inject store using NgRx pattern
   readonly store = inject(SignatureStore);
   private readonly fb = inject(FormBuilder);
