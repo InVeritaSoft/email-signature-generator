@@ -20,7 +20,14 @@
 
   /* Color Variations (for hover states, etc.) */
   --color-primary-hover: #0056a8;
-  --color-primary-light: #e6f2ff;
+  --color-primary-light: #e0eefb;
+  --color-text-muted: #6b6b6b;
+  --color-error: #b42318;
+  --color-page: #e6e7e8;
+
+  /* Brand typefaces: Okta Neue Extended for headings when installed, else Montserrat */
+  --font-heading: "Okta Neue Extended", "Montserrat", Arial, sans-serif;
+  --font-body: "Montserrat", Arial, sans-serif;
 
   /* Brand Gradients */
   --gradient-default: linear-gradient(
@@ -53,17 +60,12 @@ html {
 html,
 body {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
-  color: #333;
-  background-color: #f5f5f5;
-}
-
-body {
-  margin: 0;
-  min-width: 1200px;
+  color: var(--color-text);
+  background-color: var(--color-page);
+  -webkit-font-smoothing: antialiased;
 }
 
 app-root {

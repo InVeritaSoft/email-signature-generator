@@ -1,305 +1,135 @@
-<div class="page-container">
-  <!-- Column 1: Variant Selector -->
-  <div class="variant-column">
-    <h2>Choose Variant</h2>
-    <div class="variant-selector-section">
-      <label class="variant-label">Choose Signature Style:</label>
-      <div class="variant-thumbnails">
-        <div
-          *ngFor="let variant of visibleVariants()"
-          class="variant-thumbnail"
-          [class.active]="store.variant() === variant"
-          (click)="selectVariant(variant)"
-          [title]="getVariantDisplayName(variant)"
-        >
-          <div class="thumbnail-preview" [class]="'preview-' + variant"></div>
-          <span class="variant-name">{{ getVariantDisplayName(variant) }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Column 2: Preview Section -->
-
-  <div class="preview-column">
-    <!--
-    <h2>Preview</h2>
-    <div
-      class="signature-container"
-      [class]="'variant-' + store.variant()"
-      data-node-id="136:143"
-    >
-      <div
-        class="signature-content"
-        [class]="'variant-' + store.variant()"
-        data-node-id="136:144"
-      >
-        <div class="left-column" data-node-id="136:145">
-          <div
-            class="portrait-container photo-section"
-            data-name="portrait-image"
-            data-section="photo-section"
-            data-node-id="136:146"
-          >
-            <img
-              [src]="store.imageUrl()"
-              [alt]="store.name()"
-              class="portrait-image"
-            />
-          </div>
-          <div
-            class="logo-container logo-section"
-            data-name="company-logo"
-            data-section="logo-section"
-            data-node-id="136:147"
-          >
-            <img [src]="logoUrl" [alt]="'Inverita logo'" class="logo-image" />
-          </div>
-        </div>
-
-        <div class="right-column" data-node-id="136:159">
-          <div
-            class="contact-info-container personal-section"
-            data-section="personal-section"
-          >
-            <div class="contact-info" data-node-id="136:160">
-              <div class="contact-details" data-node-id="136:161">
-                <p class="name" data-name="name" data-node-id="136:162">
-                  {{ store.name() }}
-                </p>
-                <div class="title" data-name="title" data-node-id="136:163">
-                  <p class="mb-0">{{ store.title() }}</p>
-                  <p>&nbsp;</p>
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="linkedin-section"
-              data-name="linkedin-link"
-              data-node-id="136:164"
-              [class.hidden]="!store.linkedInUrl()"
-            >
-              <a
-                [href]="store.linkedInUrl()"
-                class="linkedin-link"
-                data-node-id="136:165"
-              >
-                <div class="linkedin-text" data-node-id="136:166">
-                  <p>{{ store.linkedInText() || "LinkedIn" }}</p>
-                </div>
-              </a>
-            </div>
-            <div class="website-link-section">
-              <a
-                [href]="store.websiteUrl()"
-                class="website-link"
-                data-name="website-link"
-                data-node-id="136:182"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <p>{{ store.websiteText() || store.websiteUrl() }}</p>
-              </a>
-            </div>
-          </div>
-
-          <div
-            class="social-section social-info-section"
-            data-section="social-section"
-            data-node-id="136:167"
-          >
-            <div class="divider" data-node-id="136:168"></div>
-            <div class="social-content" data-node-id="136:169">
-              <div class="social-icons" data-node-id="136:170">
-                <a
-                  [href]="store.facebookUrl()"
-                  class="social-icon-link"
-                  data-name="social-icon-link"
-                  data-node-id="136:171"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div class="social-icon" data-node-id="136:172">
-                    <i
-                      class="ri-facebook-fill"
-                      style="font-size: 24px; color: inherit"
-                    ></i>
-                  </div>
-                </a>
-                <a
-                  [href]="store.youtubeUrl()"
-                  class="social-icon-link"
-                  data-name="social-icon-link"
-                  data-node-id="136:174"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div class="social-icon" data-node-id="136:175">
-                    <i
-                      class="ri-youtube-fill"
-                      style="font-size: 24px; color: inherit"
-                    ></i>
-                  </div>
-                </a>
-                <a
-                  [href]="store.linkedInSocialUrl()"
-                  class="social-icon-link"
-                  data-name="social-icon-link"
-                  data-node-id="136:177"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div class="social-icon" data-node-id="136:178">
-                    <i
-                      class="ri-linkedin-fill"
-                      style="font-size: 24px; color: inherit"
-                    ></i>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  -->
-    <!-- Email Test Section -->
-    <div class="email-test-section">
-      <!-- <div class="controls">
-        <h2>Email Signature Test</h2>
-        <div class="input-group">
-          <label for="baseUrl">Base URL for Images (optional):</label>
-          <input
-            id="baseUrl"
-            type="text"
-            [value]="baseUrl()"
-            (input)="onBaseUrlChange($event)"
-            placeholder="https://inveritasoft.com"
-            class="url-input"
-          />
-          <p class="help-text">
-            Leave empty to use relative paths, or enter a base URL (e.g.,
-            https://inveritasoft.com) for absolute image URLs
-          </p>
-        </div>
-      </div> -->
-
-      <div class="preview-section">
-        <div class="preview-header">
-          <h2>Email Preview</h2>
-          <!-- <div class="copy-email-wrapper">
-            <button
-              type="button"
-              (click)="copyEmailPreviewToClipboard()"
-              class="copy-email-button"
-            >
-              Copy Email Preview to Clipboard
-            </button>
-            <div *ngIf="emailPreviewCopySuccess()" class="email-copy-success">
-              ✓ Copied!
-            </div>
-          </div> -->
+<main class="page">
+  <div class="workspace">
+    <!-- Preview: the signature as it will sit at the end of an email -->
+    <section class="preview-pane" aria-label="Signature preview">
+      <div class="message">
+        <div class="message-body">
+          <p>Thanks for the update. Let's go through the details on tomorrow's call.</p>
+          <p>Best regards,</p>
         </div>
         <div class="email-preview-container" [innerHTML]="emailHtml()"></div>
       </div>
-    </div>
-  </div>
 
-  <!-- Column 3: Form Section -->
-  <div class="form-column">
-    <h2>Edit Data</h2>
-    <form [formGroup]="signatureForm" class="signature-form">
-      <div class="form-group">
-        <label for="name">Name *</label>
-        <input
-          id="name"
-          type="text"
-          formControlName="name"
-          class="form-control"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('name')?.invalid &&
-            (signatureForm.get('name')?.touched || formSubmitted())
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('name')?.invalid &&
-            (signatureForm.get('name')?.touched || formSubmitted())
-          "
-          class="error-message"
-        >
-          Name is required
-        </div>
-      </div>
+      <p class="preview-note">Shown at the size recipients will see it.</p>
+    </section>
 
-      <div class="form-group">
-        <label for="title">Title/Position *</label>
-        <input
-          id="title"
-          type="text"
-          formControlName="title"
-          class="form-control"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            (signatureForm.get('title')?.invalid &&
-              (signatureForm.get('title')?.touched || formSubmitted())) ||
-            signatureForm.get('title')?.hasError('positionLevel')
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('title')?.hasError('required') &&
-            (signatureForm.get('title')?.touched || formSubmitted())
-          "
-          class="error-message"
-        >
-          Title is required
+    <!-- Editor -->
+    <section class="editor-pane" aria-labelledby="editor-heading">
+      <header class="editor-header">
+        <div class="editor-title">
+          <h1 id="editor-heading">Your email signature</h1>
+          <button
+            type="button"
+            class="text-button"
+            (click)="clearCache()"
+            title="Reset name, title, LinkedIn and photo saved in this browser"
+          >
+            Clear saved data
+          </button>
         </div>
-        <div
-          *ngIf="signatureForm.get('title')?.getError('positionLevel') as levelError"
-          class="error-message"
-        >
-          Remove "{{ levelError.level }}": company policy allows only the job
-          title, e.g. "QA Engineer" instead of "Middle QA Engineer".
-        </div>
-      </div>
+        <p>Fill in your details, copy, and paste into Gmail.</p>
+      </header>
 
-      <div class="form-group">
-        <label for="imageUrl">Portrait Image</label>
-        <div class="image-upload-container">
-          <div class="upload-section">
-            <label for="imageUpload" class="upload-button" [class.disabled]="imageProcessing()">
-              <span *ngIf="!imageProcessing()">📷 Upload Image</span>
-              <span *ngIf="imageProcessing()">⏳ Processing...</span>
-              <input
-                id="imageUpload"
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,.jpg,.jpeg,.png"
-                (change)="onImageUpload($event)"
-                [disabled]="imageProcessing()"
-                style="display: none"
-              />
+      <form [formGroup]="signatureForm" class="signature-form" (submit)="$event.preventDefault()">
+        <div class="field">
+          <label for="name">Full name</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            class="form-control"
+            autocomplete="name"
+            (input)="syncFormToStore($event)"
+            [class.invalid]="
+              signatureForm.get('name')?.invalid &&
+              (signatureForm.get('name')?.touched || formSubmitted())
+            "
+          />
+          <p
+            *ngIf="
+              signatureForm.get('name')?.invalid &&
+              (signatureForm.get('name')?.touched || formSubmitted())
+            "
+            class="error-message"
+          >
+            Enter your name.
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="title">Job title</label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            class="form-control"
+            placeholder="e.g. QA Engineer"
+            autocomplete="organization-title"
+            (input)="syncFormToStore($event)"
+            [class.invalid]="
+              (signatureForm.get('title')?.invalid &&
+                (signatureForm.get('title')?.touched || formSubmitted())) ||
+              signatureForm.get('title')?.hasError('positionLevel')
+            "
+          />
+          <p
+            *ngIf="
+              signatureForm.get('title')?.hasError('required') &&
+              (signatureForm.get('title')?.touched || formSubmitted())
+            "
+            class="error-message"
+          >
+            Enter your job title.
+          </p>
+          <p
+            *ngIf="signatureForm.get('title')?.getError('positionLevel') as levelError"
+            class="error-message"
+          >
+            Remove "{{ levelError.level }}": company policy allows only the job
+            title, e.g. "QA Engineer" instead of "Middle QA Engineer".
+          </p>
+        </div>
+
+        <div class="field">
+          <span class="field-label" id="photo-label">Photo</span>
+          <div class="photo-row" aria-labelledby="photo-label">
+            <div class="photo-thumb">
+              <img *ngIf="store.imageUrl()" [src]="store.imageUrl()" alt="" />
+            </div>
+            <input
+              id="imageUpload"
+              class="visually-hidden"
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,.jpg,.jpeg,.png"
+              (change)="onImageUpload($event)"
+              [disabled]="imageProcessing()"
+            />
+            <label
+              for="imageUpload"
+              class="secondary-button"
+              title="JPG or PNG. Cropped around your face automatically."
+              [class.disabled]="imageProcessing()"
+            >
+              {{ imageProcessing() ? "Processing…" : "Upload photo" }}
             </label>
-            <span class="upload-hint">JPG, JPEG, or PNG (automatically optimized)</span>
             <button
               *ngIf="store.imageUrl() && !imageProcessing()"
               type="button"
-              class="clear-image-button"
+              class="text-button"
               (click)="clearImage()"
             >
-              Clear Image
+              Remove
             </button>
           </div>
-          <div class="or-divider">OR</div>
-          <div class="url-section">
+          <details class="url-option">
+            <summary>Or use an image link</summary>
             <input
               id="imageUrl"
               type="url"
               formControlName="imageUrl"
               class="form-control"
-              placeholder="https://example.com/image.jpg or paste base64 data URL"
+              placeholder="https://example.com/photo.jpg"
+              aria-label="Photo link"
               (input)="syncFormToStore($event)"
               (blur)="onImageUrlBlur($event)"
               [class.invalid]="
@@ -307,78 +137,73 @@
                 (signatureForm.get('imageUrl')?.touched || formSubmitted())
               "
             />
-            <div
-              *ngIf="
-                signatureForm.get('imageUrl')?.invalid &&
-                (signatureForm.get('imageUrl')?.touched || formSubmitted())
-              "
-              class="error-message"
-            >
-              Please enter a valid URL or upload an image
-            </div>
-          </div>
+          </details>
+          <p
+            *ngIf="
+              signatureForm.get('imageUrl')?.invalid &&
+              (signatureForm.get('imageUrl')?.touched || formSubmitted())
+            "
+            class="error-message"
+          >
+            Enter a link starting with https://, or upload a photo.
+          </p>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="linkedInUrl">LinkedIn Profile URL</label>
-        <input
-          id="linkedInUrl"
-          type="url"
-          formControlName="linkedInUrl"
-          class="form-control"
-          placeholder="https://www.linkedin.com/in/username"
-          (input)="syncFormToStore($event)"
-          [class.invalid]="
-            signatureForm.get('linkedInUrl')?.invalid &&
-            (signatureForm.get('linkedInUrl')?.touched || formSubmitted())
-          "
-        />
-        <div
-          *ngIf="
-            signatureForm.get('linkedInUrl')?.invalid &&
-            (signatureForm.get('linkedInUrl')?.touched || formSubmitted())
-          "
-          class="error-message"
-        >
-          Please enter a valid URL
+        <div class="field">
+          <label for="linkedInUrl">LinkedIn profile <span class="optional">optional</span></label>
+          <input
+            id="linkedInUrl"
+            type="url"
+            formControlName="linkedInUrl"
+            class="form-control"
+            placeholder="https://www.linkedin.com/in/username"
+            (input)="syncFormToStore($event)"
+            [class.invalid]="
+              signatureForm.get('linkedInUrl')?.invalid &&
+              (signatureForm.get('linkedInUrl')?.touched || formSubmitted())
+            "
+          />
+          <p
+            *ngIf="
+              signatureForm.get('linkedInUrl')?.invalid &&
+              (signatureForm.get('linkedInUrl')?.touched || formSubmitted())
+            "
+            class="error-message"
+          >
+            Enter a link starting with https://.
+          </p>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="linkedInText">LinkedIn Link Text</label>
-        <input
-          id="linkedInText"
-          type="text"
-          formControlName="linkedInText"
-          class="form-control"
-          (input)="syncFormToStore($event)"
-        />
-      </div>
-
-      <div class="form-actions">
-        <button
-          type="button"
-          (click)="copyEmailPreviewToClipboard()"
-          class="copy-button"
-        >
-          Copy Email preview to Clipboard
-        </button>
-        <div *ngIf="emailPreviewCopySuccess()" class="email-copy-success">
-          ✓ Copied!
+        <div class="field">
+          <label for="linkedInText">LinkedIn link text</label>
+          <input
+            id="linkedInText"
+            type="text"
+            formControlName="linkedInText"
+            class="form-control"
+            (input)="syncFormToStore($event)"
+          />
         </div>
-      </div>
 
-      <div class="cache-actions">
-        <button
-          type="button"
-          (click)="clearCache()"
-          class="clear-cache-button"
-          title="Clear cached personal data (name, title, LinkedIn URL, and photo)"
-        >
-          🗑️ Clear Cache
-        </button>
-      </div>
-    </form>
+        <div class="copy-block">
+          <button
+            type="button"
+            class="primary-button"
+            [class.copied]="emailPreviewCopySuccess()"
+            (click)="copyEmailPreviewToClipboard()"
+          >
+            {{ emailPreviewCopySuccess() ? "Copied" : "Copy signature" }}
+          </button>
+          <span class="visually-hidden" aria-live="polite">
+            {{ emailPreviewCopySuccess() ? "Signature copied" : "" }}
+          </span>
+          <ol class="steps">
+            <li>In Gmail, open Settings → See all settings.</li>
+            <li>Under Signature, paste into the text box.</li>
+            <li>Scroll down and click Save changes.</li>
+          </ol>
+        </div>
+      </form>
+    </section>
   </div>
-</div>
+</main>
