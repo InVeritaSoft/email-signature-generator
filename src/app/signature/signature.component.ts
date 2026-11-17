@@ -233,27 +233,6 @@ export class SignatureComponent implements OnInit {
     return '';
   });
 
-  readonly emailHtmlString = computed(() => {
-    // Track all individual store signals to ensure reactivity
-    // Note: Social links and website are hardcoded and always available
-    this.store.name();
-    this.store.title();
-    this.store.linkedInUrl();
-    this.store.linkedInText();
-    this.store.websiteUrl(); // Hardcoded Inverita website
-    this.store.websiteText(); // Hardcoded Inverita website text
-    this.store.facebookUrl(); // Hardcoded Inverita link
-    this.store.youtubeUrl(); // Hardcoded Inverita link
-    this.store.linkedInSocialUrl(); // Hardcoded Inverita link
-    this.store.imageUrl();
-    this.store.variant();
-    const baseUrlValue = this.baseUrl();
-
-    // Get current state and pass to generation method
-    const state = this.store.state();
-    return this.store.generateEmailHtml(baseUrlValue, state);
-  });
-
   /**
    * Syncs current form values to store - called on input events to ensure immediate updates
    * @param event - Input event to get the current value directly from the input element
@@ -296,8 +275,8 @@ export class SignatureComponent implements OnInit {
    * @param baseUrl - Base URL for images (e.g., 'https://yourdomain.com' or 'https://cdn.yourdomain.com')
    * @returns Complete HTML document ready for email clients
    */
-  generateEmailHtml(baseUrl: string = ''): string {
-    return this.store.generateEmailHtml(baseUrl);
+  async generateEmailHtml(baseUrl: string = ''): Promise<string> {
+    return await this.store.generateEmailHtml(baseUrl);
   }
 
   /**

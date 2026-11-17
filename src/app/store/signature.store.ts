@@ -2123,12 +2123,12 @@ export const SignatureStore = signalStore(
        * @param stateOverride - Optional state override (for reactive computed signals)
        * @returns Complete HTML document ready for email clients
        */
-      generateEmailHtml(
+      async generateEmailHtml(
         baseUrlOverride: string = '',
         stateOverride?: SignatureState
-      ): string {
+      ): Promise<string> {
         // Use generateEmailSignature which already handles variants
-        const signature = this.generateEmailSignature(
+        const signature = await this.generateEmailSignature(
           baseUrlOverride,
           stateOverride
         );
