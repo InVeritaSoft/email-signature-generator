@@ -243,18 +243,26 @@
           class="form-control"
           (input)="syncFormToStore($event)"
           [class.invalid]="
-            signatureForm.get('title')?.invalid &&
-            (signatureForm.get('title')?.touched || formSubmitted())
+            (signatureForm.get('title')?.invalid &&
+              (signatureForm.get('title')?.touched || formSubmitted())) ||
+            signatureForm.get('title')?.hasError('positionLevel')
           "
         />
         <div
           *ngIf="
-            signatureForm.get('title')?.invalid &&
+            signatureForm.get('title')?.hasError('required') &&
             (signatureForm.get('title')?.touched || formSubmitted())
           "
           class="error-message"
         >
           Title is required
+        </div>
+        <div
+          *ngIf="signatureForm.get('title')?.getError('positionLevel') as levelError"
+          class="error-message"
+        >
+          Remove "{{ levelError.level }}": company policy allows only the job
+          title, e.g. "QA Engineer" instead of "Middle QA Engineer".
         </div>
       </div>
 

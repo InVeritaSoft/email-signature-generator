@@ -72,8 +72,6 @@ const randomTitles = [
   'VP of Engineering',
   'VP of Sales',
   'VP of Marketing',
-  'Senior Developer',
-  'Senior Designer',
   'Consultant',
   'Architect',
   'Team Lead',

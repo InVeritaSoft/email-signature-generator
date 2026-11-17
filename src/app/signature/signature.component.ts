@@ -16,6 +16,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SignatureStore, SignatureVariant } from '../store/signature.store';
 import { ImageProcessorService } from '../services/image-processor.service';
+import { positionLevelValidator } from '../validators/position-level.validator';
 
 @Component({
   selector: 'app-signature',
@@ -56,7 +57,7 @@ export class SignatureComponent implements OnInit {
     const state = this.store.state();
     this.signatureForm = this.fb.group({
       name: [state.name, [Validators.required]],
-      title: [state.title, [Validators.required]],
+      title: [state.title, [Validators.required, positionLevelValidator]],
       linkedInUrl: [state.linkedInUrl, [urlValidator]],
       linkedInText: [state.linkedInText],
       imageUrl: [state.imageUrl, [urlValidator]],
@@ -283,16 +284,7 @@ export class SignatureComponent implements OnInit {
    * Copies the generated HTML signature to clipboard
    */
   async copyToClipboard(): Promise<void> {
-    // Mark form as submitted to show validation errors
-    this.formSubmitted.set(true);
-
-    // Mark all form controls as touched to trigger validation display
-    Object.keys(this.signatureForm.controls).forEach((key) => {
-      this.signatureForm.get(key)?.markAsTouched();
-    });
-
-    // If form is invalid, don't proceed with copy
-    if (this.signatureForm.invalid) {
+    if (!this.validateBeforeCopy()) {
       return;
     }
 
@@ -351,6 +343,22 @@ export class SignatureComponent implements OnInit {
         document.body.removeChild(textArea);
       }
     }
+  }
+
+  /**
+   * Shows all validation errors and returns whether the form may be copied.
+   * Blocks copying e.g. a title that contains a position level.
+   */
+  private validateBeforeCopy(): boolean {
+    // Mark form as submitted to show validation errors
+    this.formSubmitted.set(true);
+
+    // Mark all form controls as touched to trigger validation display
+    Object.keys(this.signatureForm.controls).forEach((key) => {
+      this.signatureForm.get(key)?.markAsTouched();
+    });
+
+    return this.signatureForm.valid;
   }
 
   /**
@@ -453,6 +461,10 @@ export class SignatureComponent implements OnInit {
    * Copies the email preview HTML to clipboard (rendered HTML as displayed)
    */
   async copyEmailPreviewToClipboard(): Promise<void> {
+    if (!this.validateBeforeCopy()) {
+      return;
+    }
+
     try {
       const html = await this.generateEmailSignature();
       const htmlWithBase64 = await this.store.convertImagesToBase64(html);
