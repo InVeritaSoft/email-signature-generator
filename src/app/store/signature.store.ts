@@ -1062,8 +1062,12 @@ export const SignatureStore = signalStore(
         const youtubeUrl = state.youtubeUrl || '';
         const linkedInSocialUrl = state.linkedInSocialUrl || '';
 
-        return `<!-- Main Container Table -->
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="background-color: #fbfbfb; padding: 0; border: 0; min-width: 600px; max-width: 600px; width: 600px; table-layout: fixed;">
+        // Fluid-hybrid width: shrinks below 600px inside nested reply quotes and on
+        // mobile instead of overflowing. Outlook desktop ignores max-width, so it gets
+        // a fixed 600px wrapper via MSO conditional comments.
+        return `<!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600"><tr><td><![endif]-->
+<!-- Main Container Table -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fbfbfb; padding: 0; border: 0; width: 100%; max-width: 600px;">
   <tr>
     <td>
       <!-- Content Table -->
@@ -1081,7 +1085,7 @@ export const SignatureStore = signalStore(
               <!-- Logo -->
               <tr>
                 <td style="padding: 0; background: linear-gradient(300deg, #FAF6AF -91.29%, #7AD0CB -15.73%, #006BE5 75.91%); height: 60px; text-align: center; vertical-align: middle;">
-                  <img src="${logoUrlValue}" alt="Inverita logo" width="180" height="35" style="display: block; width: auto; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
+                  <img src="${logoUrlValue}" alt="Inverita logo" width="140" height="35" style="display: block; width: 140px; height: 35px; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
                 </td>
               </tr>
             </table>
@@ -1177,7 +1181,8 @@ export const SignatureStore = signalStore(
       </table>
     </td>
   </tr>
-</table>`;
+</table>
+<!--[if mso]></td></tr></table><![endif]-->`;
       },
 
       generateDarkVariant(

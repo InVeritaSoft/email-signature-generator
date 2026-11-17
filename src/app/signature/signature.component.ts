@@ -593,7 +593,7 @@ export class SignatureComponent implements OnInit {
       const base64 = await this.imageProcessor.processImage(
         file,
         800, // max dimension before processing
-        400, // target size for final output (square)
+        360, // target size for final output (square): 2x the 180px display size
       );
 
       // Update form and store with processed base64 data URL

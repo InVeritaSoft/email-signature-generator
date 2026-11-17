@@ -240,8 +240,9 @@ export class ImageProcessorService {
                 outputHeight
               );
 
-              // Convert to base64
-              const base64 = canvas.toDataURL('image/jpeg', 0.92);
+              // Convert to base64. Keep it small: the signature is inlined into every
+              // message and quoted again in each reply, and Gmail clips messages over ~102KB.
+              const base64 = canvas.toDataURL('image/jpeg', 0.8);
               resolve(base64);
             } catch (error) {
               console.error('Image processing error:', error);
